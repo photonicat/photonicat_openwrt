@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=quectel-cm
 PKG_VERSION:=1.0.3
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_MAINTAINER:=Kyosuke Nekoyashiki <supercatexpert@gmail.com>
 PKG_LICENSE:=Public Domain

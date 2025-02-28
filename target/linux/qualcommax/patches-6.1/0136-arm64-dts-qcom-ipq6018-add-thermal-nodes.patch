@@ -13,7 +13,7 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
 
 --- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
 +++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-@@ -358,6 +358,16 @@
+@@ -357,6 +357,16 @@
  			clock-names = "core";
  		};
  

@@ -1,3 +1,5 @@
 #!/bin/sh
 
+killall -USR1 pcat-manager 2>/dev/null || true
+
 /sbin/jffs2reset $@

@@ -1,0 +1,47 @@
+From: Heiko Stuebner @ 2025-02-20 23:41 UTC (permalink / raw)
+  To: gregkh, heiko
+  Cc: rafael, dakr, hjc, andy.yan, maarten.lankhorst, mripard,
+	tzimmermann, dri-devel, linux-kernel, linux-arm-kernel,
+	linux-rockchip, quentin.schulz
+
+When the drm-driver probes, it mainly creates the component device, where
+all the sub-drivers (vops, hdmi, etc) hook into.
+
+This will cause the shutdown handler to get called on shutdown, even
+though the drm-device might not have been set up, or the component bind
+might have failed.
+
+So use the new component helper to check whether the drm-device is up
+and only then call the drm-atomic helper to release all the drm magic.
+
+This prevents failures when the drm-device is never set, or has been
+freed up already for example by a probe-defer during the component bind.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+---
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+index 439edc165ff6..285b721ff28a 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+@@ -463,10 +463,13 @@
+ 
+ static void rockchip_drm_platform_shutdown(struct platform_device *pdev)
+ {
+-	struct drm_device *drm = platform_get_drvdata(pdev);
++	struct drm_device *drm;
+ 
+-	if (drm)
+-		drm_atomic_helper_shutdown(drm);
++	if (component_master_is_bound(&pdev->dev, &rockchip_drm_ops)) {
++ 		drm = platform_get_drvdata(pdev);
++		if (drm)
++			drm_atomic_helper_shutdown(drm);
++	}
+ }
+ 
+ static const struct of_device_id rockchip_drm_dt_ids[] = {
+-- 
+2.47.2

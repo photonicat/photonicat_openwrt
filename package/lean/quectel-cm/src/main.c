@@ -63,7 +63,8 @@ static void usbnet_link_change(int link, PROFILE_T *profile) {
             system(cmd);
         }
 
-        if(strcmp(profile->usbnet_adapter, "usb0")==0) {
+        if(strcmp(profile->usbnet_adapter, "usb0")==0 ||
+            strcmp(profile->usbnet_adapter, "eth2")==0) {
             system("ubus call network.interface.wwan_5g down");
             system("ubus call network.interface.wwan_5g_v6 down");
             sleep(2);
@@ -80,7 +81,8 @@ static void usbnet_link_change(int link, PROFILE_T *profile) {
 
         //udhcpc_start(profile);
     } else {
-        if(strcmp(profile->usbnet_adapter, "usb0")==0) {
+        if(strcmp(profile->usbnet_adapter, "usb0")==0 ||
+            strcmp(profile->usbnet_adapter, "eth2")==0) {
             system("ubus call network.interface.wwan_5g down");
             system("ubus call network.interface.wwan_5g_v6 down");
         }

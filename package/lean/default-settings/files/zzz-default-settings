@@ -25,10 +25,8 @@ if [ x"${OEM_PASSWORD}" != x"" ]; then
 else
     uci set system.@system[0].hostname=photonicat-openwrt
 fi
-uci commit system
 
-uci set fstab.@global[0].anon_mount=1
-uci commit fstab
+uci commit system
 
 rm -f /usr/lib/lua/luci/view/admin_status/index/mwan.htm
 rm -f /usr/lib/lua/luci/view/admin_status/index/upnp.htm
@@ -62,7 +60,7 @@ sed -i '/option disabled/d' /etc/config/wireless
 sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
-echo "DISTRIB_REVISION='R24.04.1'" >> /etc/openwrt_release
+echo "DISTRIB_REVISION='R25.02.0'" >> /etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
 
 if [ x"${OEM_PASSWORD}" != x"" ]; then

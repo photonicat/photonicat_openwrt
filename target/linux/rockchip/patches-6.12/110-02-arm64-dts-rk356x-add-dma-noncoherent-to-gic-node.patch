@@ -1,0 +1,44 @@
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: Heiko Stuebner <heiko@sntech.de>, Marc Zyngier <maz@kernel.org>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Kever Yang <kever.yang@rock-chips.com>,
+	XiaoDong Huang <derrick.huang@rock-chips.com>,
+	Peter Geis <pgwipeout@gmail.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	kernel@collabora.com
+Subject: [PATCH v1 2/4] arm64: dts: rockchip: rk356x: Add dma-noncoherent property to GIC node
+Date: Sun, 16 Feb 2025 02:54:29 +0300	[thread overview]
+Message-ID: <20250215235431.143138-3-dmitry.osipenko@collabora.com> (raw)
+In-Reply-To: <20250215235431.143138-1-dmitry.osipenko@collabora.com>
+
+Rockchip 3566/8 SoCs are affected by the GIC integration issue where
+GIC reports that it supports programmable shareability in a feature
+register, while in fact it doesn't support this feature. Rockchip
+assigned Errata ID #3568001 for the issue.
+
+Add dma-noncoherent GIC property, denoting that a SW quirk is required
+for the GIC.
+
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+---
+ arch/arm64/boot/dts/rockchip/rk356x.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+index de5e6c0c3d24..28be38b7182e 100644
+--- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+@@ -284,6 +284,7 @@ gic: interrupt-controller@fd400000 {
+ 		mbi-alias = <0x0 0xfd410000>;
+ 		mbi-ranges = <296 24>;
+ 		msi-controller;
++		dma-noncoherent;
+ 	};
+ 
+ 	usb_host0_ehci: usb@fd800000 {
+-- 
+2.48.1

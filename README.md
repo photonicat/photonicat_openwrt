@@ -15,7 +15,7 @@
 
 ## 编译命令
 
-1. 首先装好 Linux 系统，推荐 Debian 11 或 Ubuntu LTS
+1. 首先装好 Linux 系统，推荐 Debian 或 Ubuntu LTS
 
 2. 安装编译依赖
 
@@ -50,7 +50,7 @@
    make V=s -j1
    ```
 
-本套代码保证肯定可以编译成功。里面包括了 R23 所有源代码，包括 IPK 的。
+本套代码保证肯定可以编译成功。里面包括了 R24 所有源代码，包括 IPK 的。
 
 你可以自由使用，但源码编译二次发布请注明我的 GitHub 仓库链接。谢谢合作！
 
@@ -69,14 +69,14 @@ make V=s -j$(nproc)
 如果需要重新配置：
 
 ```bash
-rm -rf ./tmp && rm -rf .config
+rm -rf .config
 make menuconfig
 make V=s -j$(nproc)
 ```
 
 编译完成后输出路径：bin/targets
 
-### 如果你使用 WSL/WSL2 进行编译
+### 使用 WSL/WSL2 进行编译
 
 由于 WSL 的 PATH 中包含带有空格的 Windows 路径，有可能会导致编译失败，请在 `make` 前面加上：
 
@@ -91,10 +91,10 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 2. 安装 Homebrew：
 
    ```bash
-   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    ```
 
-3. 使用 Homebrew 安装工具链、依赖与基础软件包:
+3. 使用 Homebrew 安装工具链、依赖与基础软件包：
 
    ```bash
    brew unlink awk
@@ -103,6 +103,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
    ```
 
 4. 然后输入以下命令，添加到系统环境变量中：
+
+   - intel 芯片的 mac
 
    ```bash
    echo 'export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.bashrc
@@ -114,11 +116,23 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
    echo 'export PATH="/usr/local/opt/make/libexec/gnubin:$PATH"' >> ~/.bashrc
    ```
 
+   - apple 芯片的 mac
+
+   ```zsh
+   echo 'export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"' >> ~/.bashrc
+   echo 'export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"' >> ~/.bashrc
+   echo 'export PATH="/opt/homebrew/opt/gnu-getopt/bin:$PATH"' >> ~/.bashrc
+   echo 'export PATH="/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH"' >> ~/.bashrc
+   echo 'export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"' >> ~/.bashrc
+   echo 'export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"' >> ~/.bashrc
+   echo 'export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"' >> ~/.bashrc
+   ```
+
 5. 重新加载一下 shell 启动文件 `source ~/.bashrc`，然后输入 `bash` 进入 bash shell，就可以和 Linux 一样正常编译了
 
 ## 特别提示
 
-1. 源代码中绝不含任何后门和可以监控或者劫持你的 HTTPS 的闭源软件， SSL 安全是互联网最后的壁垒。安全干净才是固件应该做到的；
+1. 源代码中绝不含任何后门和可以监控或者劫持你的 HTTPS 的闭源软件， SSL 安全是互联网最后的壁垒，安全干净才是固件应该做到的。
 
 2. 想学习 OpenWrt 开发，但是摸不着门道？自学没毅力？基础太差？怕太难学不会？跟着佐大学 OpenWrt 开发入门培训班助你能学有所成
 报名地址：[点击报名](http://forgotfun.org/2018/04/openwrt-training-2018.html "报名")

@@ -1,0 +1,36 @@
+The switch from 1/10 to 1/40 clock ratio must happen when exceeding the
+340 MHz rate limit of HDMI 1.4, i.e. when entering the HDMI 2.0 domain,
+and not before.
+
+While at it, introduce a define for this rate limit constant.
+
+Fixes: 553be2830c5f ("phy: rockchip: Add Samsung HDMI/eDP Combo PHY driver")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+---
+ drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c b/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
+index ceab9c71d3b53ae0b746a10c081fcfaa7d5c5ae7..089020df5b4b8f9b44d272fa87a66e0f2c8ccaba 100644
+--- a/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
++++ b/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
+@@ -192,6 +192,7 @@
+ #define LN3_TX_SER_RATE_SEL_HBR2	BIT(3)
+ #define LN3_TX_SER_RATE_SEL_HBR3	BIT(2)
+ 
++#define HDMI14_MAX_RATE			340000000
+ #define HDMI20_MAX_RATE			600000000
+ 
+ struct lcpll_config {
+@@ -826,7 +827,7 @@ static int rk_hdptx_ropll_tmds_mode_config(struct rk_hdptx_phy *hdptx,
+ 
+ 	regmap_write(hdptx->regmap, LNTOP_REG(0200), 0x06);
+ 
+-	if (rate >= 3400000) {
++	if (rate > HDMI14_MAX_RATE / 100) {
+ 		/* For 1/40 bitrate clk */
+ 		rk_hdptx_multi_reg_write(hdptx, rk_hdtpx_tmds_lntop_highbr_seq);
+ 	} else {
+
+-- 
+2.47.0

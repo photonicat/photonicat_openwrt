@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 #
-# Copyright (C) 2006-2020 OpenWrt.org
+# Copyright (C) 2006-2020 LEDE.org
 
 override TARGET_BUILD=
 include $(INCLUDE_DIR)/prereq.mk
@@ -183,6 +183,7 @@ define Image/BuildDTB/sub
 		-I$(DTS_DIR) \
 		-I$(DTS_DIR)/include \
 		-I$(LINUX_DIR)/include/ \
+		-I$(LINUX_DIR)/scripts/dtc/include-prefixes \
 		-undef -D__DTS__ $(3) \
 		-o $(2).tmp $(1)
 	$(LINUX_DIR)/scripts/dtc/dtc -O dtb \
@@ -501,6 +502,9 @@ define Device/Build/initramfs
 
   $(KDIR)/$$(KERNEL_INITRAMFS_NAME):: image_prepare
   $(1)-images: $$(if $$(KERNEL_INITRAMFS),$(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE))
+  
+  .IGNORE: $(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE)
+  
   $(BIN_DIR)/$$(KERNEL_INITRAMFS_IMAGE): $(KDIR)/tmp/$$(KERNEL_INITRAMFS_IMAGE)
 	cp $$^ $$@
 

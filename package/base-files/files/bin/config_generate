@@ -193,6 +193,7 @@ generate_network() {
 			}
 		;;
 
+		ncm|\
 		qmi|\
 		mbim)
 			uci -q batch <<-EOF
@@ -295,7 +296,7 @@ generate_static_system() {
 	uci -q batch <<-EOF
 		delete system.@system[0]
 		add system system
-		set system.@system[-1].hostname='OpenWrt'
+		set system.@system[-1].hostname='LEDE'
 		set system.@system[-1].timezone='UTC'
 		set system.@system[-1].ttylogin='0'
 		set system.@system[-1].log_size='64'
@@ -305,10 +306,10 @@ generate_static_system() {
 		set system.ntp='timeserver'
 		set system.ntp.enabled='1'
 		set system.ntp.enable_server='1'
-		add_list system.ntp.server='ntp.aliyun.com'
-		add_list system.ntp.server='time1.cloud.tencent.com'
-		add_list system.ntp.server='time.ustc.edu.cn'
-		add_list system.ntp.server='cn.pool.ntp.org'
+		add_list system.ntp.server='time.apple.com'
+		add_list system.ntp.server='time.google.com'
+		add_list system.ntp.server='time.windows.com'
+		add_list system.ntp.server='time.cloudflare.com'
 	EOF
 
 	if json_is_a system object; then

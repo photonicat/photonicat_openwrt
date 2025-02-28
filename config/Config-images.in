@@ -17,7 +17,7 @@ menu "Target Images"
 			default TARGET_INITRAMFS_COMPRESSION_LZMA if TARGET_lantiq
 			default TARGET_INITRAMFS_COMPRESSION_LZMA if TARGET_mpc85xx
 			default TARGET_INITRAMFS_COMPRESSION_LZMA if TARGET_ramips
-			default TARGET_INITRAMFS_COMPRESSION_LZMA if TARGET_ipq40xx
+			default TARGET_INITRAMFS_COMPRESSION_ZSTD if TARGET_qualcommax
 			default TARGET_INITRAMFS_COMPRESSION_XZ if USES_SEPARATE_INITRAMFS
 			default TARGET_INITRAMFS_COMPRESSION_NONE
 			depends on TARGET_ROOTFS_INITRAMFS
@@ -157,7 +157,7 @@ menu "Target Images"
 			depends on TARGET_ROOTFS_SQUASHFS
 			default 64 if LOW_MEMORY_FOOTPRINT
 			default 1024 if (SMALL_FLASH && !LOW_MEMORY_FOOTPRINT)
-			default 1024
+			default 256
 			help
 			  Select squashfs block size, must be one of:
 			    4, 8, 16, 32, 64, 128, 256, 512, 1024
@@ -276,7 +276,6 @@ menu "Target Images"
 		bool "Build VMware image files (VMDK)"
 		depends on TARGET_x86
 		depends on GRUB_IMAGES || GRUB_EFI_IMAGES
-		default y
 		select PACKAGE_kmod-e1000
 
 	config VHDX_IMAGES

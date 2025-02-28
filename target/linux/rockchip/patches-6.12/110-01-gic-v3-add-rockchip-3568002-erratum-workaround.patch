@@ -1,0 +1,132 @@
+From: Dmitry Osipenko @ 2025-02-15 23:54 UTC (permalink / raw)
+  To: Heiko Stuebner, Marc Zyngier
+  Cc: Rob Herring, Krzysztof Kozlowski, Thomas Gleixner, devicetree,
+	linux-rockchip, linux-kernel, Kever Yang, XiaoDong Huang,
+	Peter Geis, Robin Murphy, kernel
+
+Rockchip RK3566/RK3568 GIC600 integration has DDR addressing
+limited to first 4GB of DRAM. Rockchip assigned Erratum ID #3568002
+for this issue. Add driver quirk for this Rockchip GIC Erratum.
+
+Note, that the 0x0201743b ID is not Rockchip 356x specific and thus
+there is an extra of_machine_is_compatible() check. Rockchip 3588 uses
+same ID and it is not affected by this errata.
+
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+---
+ Documentation/arch/arm64/silicon-errata.rst |  2 ++
+ arch/arm64/Kconfig                          |  9 ++++++++
+ drivers/irqchip/irq-gic-v3-its.c            | 23 ++++++++++++++++++++-
+ 3 files changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/arch/arm64/silicon-errata.rst b/Documentation/arch/arm64/silicon-errata.rst
+index f074f6219f5c..f968c13b46a7 100644
+--- a/Documentation/arch/arm64/silicon-errata.rst
++++ b/Documentation/arch/arm64/silicon-errata.rst
+@@ -284,6 +284,8 @@ stable kernels.
+ +----------------+-----------------+-----------------+-----------------------------+
+ | Rockchip       | RK3588          | #3588001        | ROCKCHIP_ERRATUM_3588001    |
+ +----------------+-----------------+-----------------+-----------------------------+
++| Rockchip       | RK3568          | #3568002        | ROCKCHIP_ERRATUM_3568002    |
+++----------------+-----------------+-----------------+-----------------------------+
+ +----------------+-----------------+-----------------+-----------------------------+
+ | Fujitsu        | A64FX           | E#010001        | FUJITSU_ERRATUM_010001      |
+ +----------------+-----------------+-----------------+-----------------------------+
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index c997b27b7da1..0428ad8f324d 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1302,6 +1302,15 @@ config NVIDIA_CARMEL_CNP_ERRATUM
+ 
+ 	  If unsure, say Y.
+ 
++config ROCKCHIP_ERRATUM_3568002
++	bool "Rockchip 3568002: can not support DDR addresses higher than 4G"
++	default y
++	help
++	  The Rockchip RK3566 and RK3568 GIC600 SoC integrations have DDR
++	  addressing limited to first 4GB.
++
++	  If unsure, say Y.
++
+ config ROCKCHIP_ERRATUM_3588001
+ 	bool "Rockchip 3588001: GIC600 can not support shareability attributes"
+ 	default y
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 8c3ec5734f1e..f30ed281882f 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c	2025-02-18 18:13:12.704050061 +0900
++++ b/drivers/irqchip/irq-gic-v3-its.c	2025-02-18 18:19:07.274277592 +0900
+@@ -201,6 +201,8 @@
+ #define gic_data_rdist_rd_base()	(gic_data_rdist()->rd_base)
+ #define gic_data_rdist_vlpi_base()	(gic_data_rdist_rd_base() + SZ_128K)
+ 
++static gfp_t gfp_flags_quirk;
++
+ /*
+  * Skip ITSs that have no vLPIs mapped, unless we're on GICv4.1, as we
+  * always have vSGIs mapped.
+@@ -2317,7 +2319,8 @@
+ 		order = get_order(GITS_BASER_PAGES_MAX * psz);
+ 	}
+ 
+-	page = alloc_pages_node(its->numa_node, GFP_KERNEL | __GFP_ZERO, order);
++	page = alloc_pages_node(its->numa_node,
++		GFP_KERNEL | __GFP_ZERO | gfp_flags_quirk, order);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+@@ -3305,7 +3308,8 @@
+ 
+ 	/* Allocate memory for 2nd level table */
+ 	if (!table[idx]) {
+-		page = alloc_pages_node(its->numa_node, GFP_KERNEL | __GFP_ZERO,
++		page = alloc_pages_node(its->numa_node,
++					GFP_KERNEL | __GFP_ZERO | gfp_flags_quirk,
+ 					get_order(baser->psz));
+ 		if (!page)
+ 			return false;
+@@ -4801,6 +4805,17 @@
+ 	return true;
+ }
+ 
++static bool __maybe_unused its_enable_rk3568002(void *data)
++{
++	if (!of_machine_is_compatible("rockchip,rk3566") &&
++	    !of_machine_is_compatible("rockchip,rk3568"))
++		return false;
++
++	gfp_flags_quirk |= GFP_DMA32;
++
++	return true;
++}
++
+ static const struct gic_quirk its_quirks[] = {
+ #ifdef CONFIG_CAVIUM_ERRATUM_22375
+ 	{
+@@ -4868,6 +4883,14 @@
+ 		.property = "dma-noncoherent",
+ 		.init   = its_set_non_coherent,
+ 	},
++#ifdef CONFIG_ROCKCHIP_ERRATUM_3568002
++	{
++		.desc   = "ITS: Rockchip erratum RK3568002",
++		.iidr   = 0x0201743b,
++		.mask   = 0xffffffff,
++		.init   = its_enable_rk3568002,
++	},
++#endif
+ 	{
+ 	}
+ };
+@@ -5160,7 +5183,8 @@
+ 		}
+ 	}
+ 
+-	page = alloc_pages_node(its->numa_node, GFP_KERNEL | __GFP_ZERO,
++	page = alloc_pages_node(its->numa_node,
++				GFP_KERNEL | __GFP_ZERO | gfp_flags_quirk,
+ 				get_order(ITS_CMD_QUEUE_SZ));
+ 	if (!page) {
+ 		err = -ENOMEM;
+-- 
+2.48.1

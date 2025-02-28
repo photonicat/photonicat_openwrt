@@ -1,0 +1,8 @@
+--- a/certs/Makefile	2025-02-02 02:39:40.000000000 +0900
++++ b/certs/Makefile	2025-02-26 20:03:04.262432398 +0900
+@@ -85,4 +85,4 @@
+ hostprogs := extract-cert
+ 
+ HOSTCFLAGS_extract-cert.o = $(shell $(HOSTPKG_CONFIG) --cflags libcrypto 2> /dev/null) -I$(srctree)/scripts
+-HOSTLDLIBS_extract-cert = $(shell $(HOSTPKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto)
++HOSTLDLIBS_extract-cert = $(shell $(HOSTPKG_CONFIG) --libs libcrypto 2> /dev/null || echo -lcrypto) -lpthread

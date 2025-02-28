@@ -1,0 +1,39 @@
+From 8493cb4248b264929a2026688482b23d5f9c3581 Mon Sep 17 00:00:00 2001
+From: Andy Yan <andy.yan@rock-chips.com>
+Date: Fri, 20 Sep 2024 16:20:23 +0800
+Subject: [PATCH] drm/rockchip: Set dma mask to 64 bit
+
+The vop mmu support translate physical address upper 4 GB to iova
+below 4 GB. So set dma mask to 64 bit to indicate we support address
+> 4GB.
+
+This can avoid warnging message like this on some boards with DDR
+> 4 GB:
+
+rockchip-drm display-subsystem: swiotlb buffer is full (sz: 266240 bytes), total 32768 (slots), used 130 (slots)
+rockchip-drm display-subsystem: swiotlb buffer is full (sz: 266240 bytes), total 32768 (slots), used 0 (slots)
+rockchip-drm display-subsystem: swiotlb buffer is full (sz: 266240 bytes), total 32768 (slots), used 130 (slots)
+rockchip-drm display-subsystem: swiotlb buffer is full (sz: 266240 bytes), total 32768 (slots), used 130 (slots)
+rockchip-drm display-subsystem: swiotlb buffer is full (sz: 266240 bytes), total 32768 (slots), used 0 (slots)
+
+Tested-by: Derek Foreman <derek.foreman@collabora.com>
+Signed-off-by: Andy Yan <andy.yan@rock-chips.com>
+---
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+index 32d8394c4c4996..3e9f590c734e92 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+@@ -474,7 +474,9 @@ static int rockchip_drm_platform_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	return 0;
++	ret = dma_coerce_mask_and_coherent(dev, DMA_BIT_MASK(64));
++
++	return ret;
+ }
+ 
+ static void rockchip_drm_platform_remove(struct platform_device *pdev)

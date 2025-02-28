@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openssl
-PKG_VERSION:=3.0.13
+PKG_VERSION:=3.0.16
 PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
 PKG_BUILD_FLAGS:=gc-sections no-lto
@@ -17,17 +17,9 @@ PKG_BUILD_PARALLEL:=1
 
 PKG_BASE:=$(subst $(space),.,$(wordlist 1,2,$(subst .,$(space),$(PKG_VERSION))))
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:= \
-	https://mirrors.tencent.com/openssl/source/ \
-	https://mirrors.tencent.com/openssl/source/old/$(PKG_BASE)/ \
-	https://www.openssl.org/source/ \
-	https://www.openssl.org/source/old/$(PKG_BASE)/ \
-	https://ftp.fi.muni.cz/pub/openssl/source/ \
-	https://ftp.fi.muni.cz/pub/openssl/source/old/$(PKG_BASE)/ \
-	ftp://ftp.pca.dfn.de/pub/tools/net/openssl/source/ \
-	ftp://ftp.pca.dfn.de/pub/tools/net/openssl/source/old/$(PKG_BASE)/
+PKG_SOURCE_URL:=https://github.com/openssl/openssl/releases/download/$(PKG_NAME)-$(PKG_VERSION)/
 
-PKG_HASH:=88525753f79d3bec27d2fa7c66aa0b92b3aa9498dafd93d7cfa4b3780cdae313
+PKG_HASH:=57e03c50feab5d31b152af2b764f10379aecd8ee92f16c985983ce4a99f7ef86
 
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
@@ -76,7 +68,7 @@ endif
 
 define Package/openssl/Default
   TITLE:=Open source SSL toolkit
-  URL:=http://www.openssl.org/
+  URL:=https://www.openssl.org/
   SECTION:=libs
   CATEGORY:=Libraries
 endef
@@ -409,7 +401,7 @@ define Package/libopenssl/install
 	chmod 0700 $(1)/etc/ssl/private
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libcrypto.so.* $(1)/usr/lib/
-	$(LN) libcrypto.so.3 $(1)/usr/lib/libcrypto.so.1.1 
+	$(LN) libcrypto.so.3 $(1)/usr/lib/libcrypto.so.1.1
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libssl.so.* $(1)/usr/lib/
 	$(LN) libssl.so.3 $(1)/usr/lib/libssl.so.1.1
 	$(if $(CONFIG_OPENSSL_ENGINE),$(INSTALL_DIR) $(1)/usr/lib/$(ENGINES_DIR))
@@ -421,6 +413,8 @@ define Package/libopenssl-conf/install
 	$(INSTALL_BIN) ./files/openssl.init $(1)/etc/init.d/openssl
 	$(SED) 's!%ENGINES_DIR%!/usr/lib/$(ENGINES_DIR)!' $(1)/etc/init.d/openssl
 	touch $(1)/etc/config/openssl
+	$(if $(CONFIG_OPENSSL_ENGINE),,
+		$(SED) 's!engines = engines_sect!#&!' $(1)/etc/ssl/openssl.cnf)
 	$(if $(CONFIG_OPENSSL_ENGINE_BUILTIN_DEVCRYPTO),
 		$(CP) ./files/devcrypto.cnf $(1)/etc/ssl/modules.cnf.d/
 		echo -e "config engine 'devcrypto'\n\toption enabled '1'\n\toption builtin '1'" >> $(1)/etc/config/openssl)

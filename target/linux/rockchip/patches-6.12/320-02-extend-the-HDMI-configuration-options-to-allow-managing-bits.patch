@@ -1,0 +1,30 @@
+Extend the HDMI configuration options to allow managing bits per color
+channel.  This is required by some PHY drivers such as
+rockchip-samsung-hdptx.
+
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+---
+ include/linux/phy/phy-hdmi.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/linux/phy/phy-hdmi.h b/include/linux/phy/phy-hdmi.h
+index 6a696922bc7f29af63d88646701b2c0fcee5c885..f0ec963c6e84f1b7728acafc824dff191c6b873d 100644
+--- a/include/linux/phy/phy-hdmi.h
++++ b/include/linux/phy/phy-hdmi.h
+@@ -9,11 +9,13 @@
+ /**
+  * struct phy_configure_opts_hdmi - HDMI configuration set
+  * @tmds_char_rate: HDMI TMDS Character Rate in Hertz.
++ * @bpc: Bits per color channel.
+  *
+  * This structure is used to represent the configuration state of a HDMI phy.
+  */
+ struct phy_configure_opts_hdmi {
+ 	unsigned long long tmds_char_rate;
++	unsigned int bpc;
+ };
+ 
+ #endif /* __PHY_HDMI_H_ */
+
+-- 
+2.47.0

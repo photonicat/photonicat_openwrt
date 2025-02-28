@@ -1,0 +1,42 @@
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: Heiko Stuebner <heiko@sntech.de>, Marc Zyngier <maz@kernel.org>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Kever Yang <kever.yang@rock-chips.com>,
+	XiaoDong Huang <derrick.huang@rock-chips.com>,
+	Peter Geis <pgwipeout@gmail.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	kernel@collabora.com
+Subject: [PATCH v1 4/4] arm64: dts: rockchip: rk356x: Move PCIe MSI to use GIC ITS instead of MBI
+Date: Sun, 16 Feb 2025 02:54:31 +0300	[thread overview]
+Message-ID: <20250215235431.143138-5-dmitry.osipenko@collabora.com> (raw)
+In-Reply-To: <20250215235431.143138-1-dmitry.osipenko@collabora.com>
+
+Rockchip 356x device-tree now supports GIC ITS. Move PCIe controller's
+MSI to use ITS instead of MBI. This removes extra CPU overhead of handling
+PCIe MBIs by letting GIC's ITS to serve the PCIe MSIs.
+
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+---
+ arch/arm64/boot/dts/rockchip/rk356x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+index 423185686600..4f11141ea146 100644
+--- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+@@ -969,7 +969,7 @@ pcie2x1: pcie@fe260000 {
+ 		num-ib-windows = <6>;
+ 		num-ob-windows = <2>;
+ 		max-link-speed = <2>;
+-		msi-map = <0x0 &gic 0x0 0x1000>;
++		msi-map = <0x0 &its 0x0 0x1000>;
+ 		num-lanes = <1>;
+ 		phys = <&combphy2 PHY_TYPE_PCIE>;
+ 		phy-names = "pcie-phy";
+ 		phy-names = "pcie-phy";
+-- 
+2.48.1

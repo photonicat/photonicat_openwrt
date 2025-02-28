@@ -39,7 +39,11 @@ define Package/pcat-manager/install
 		$(1)/usr/bin/pcat-manager
 
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) ./files/pcat-manager.conf $(1)/etc
+ifdef CONFIG_TARGET_rockchip_armv8_DEVICE_ariaboard_photonicat
+	$(INSTALL_CONF) ./files/photonicat/pcat-manager.conf $(1)/etc
+else
+	$(INSTALL_CONF) ./files/photonicat2/pcat-manager.conf $(1)/etc
+endif
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/pcat-manager.init $(1)/etc/init.d/pcat-manager

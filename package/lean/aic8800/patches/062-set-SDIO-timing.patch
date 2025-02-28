@@ -1,0 +1,20 @@
+--- a/src/SDIO/driver_fw/driver/aic8800/aic8800_fdrv/aicwf_sdio.c	2025-01-07 15:19:27.762691574 +0900
++++ b/src/SDIO/driver_fw/driver/aic8800/aic8800_fdrv/aicwf_sdio.c	2025-01-07 15:35:26.335109419 +0900
+@@ -2242,7 +2242,7 @@
+ 	u8 byte_mode_disable = 0x1;//1: no byte mode
+ 	int ret = 0;
+ 	struct aicbsp_feature_t feature;
+-	//u8 val = 0;
++	u8 val = 0;
+     u8 val1 = 0;
+ 
+ 	aicbsp_get_feature(&feature, NULL);
+@@ -2272,7 +2272,7 @@
+         sdio_release_host(sdiodev->func);
+         return ret;
+     }
+-#if 0
++#if 1
+     if (host->ios.timing == MMC_TIMING_UHS_DDR50) {
+         val = 0x21;//0x1D;//0x5;
+     } else {

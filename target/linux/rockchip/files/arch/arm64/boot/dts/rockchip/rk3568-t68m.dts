@@ -28,7 +28,6 @@
 		stdout-path = "serial2:1500000n8";
 	};
 
-#ifdef DTS_NO_LEGACY
 	hdmi-con {
 		compatible = "hdmi-connector";
 		type = "a";
@@ -39,7 +38,19 @@
 			};
 		};
 	};
-#endif
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&reset_button_pin>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio3 RK_PB1 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+			debounce-interval = <50>;
+		};
+	};
 
 	gpio-keys {
 		compatible = "gpio-keys";
@@ -255,7 +266,6 @@
 	status = "okay";
 };
 
-#ifdef DTS_NO_LEGACY
 &gpu {
 	mali-supply = <&vdd_gpu>;
 	status = "okay";
@@ -282,7 +292,6 @@
 &hdmi_sound {
 	status = "okay";
 };
-#endif
 
 &i2c0 {
 	status = "okay";
@@ -741,7 +750,6 @@
 	status = "okay";
 };
 
-#ifdef DTS_NO_LEGACY
 &vop {
 	assigned-clocks = <&cru DCLK_VOP0>, <&cru DCLK_VOP1>;
 	assigned-clock-parents = <&pmucru PLL_HPLL>, <&cru PLL_VPLL>;
@@ -758,4 +766,3 @@
 		remote-endpoint = <&hdmi_in_vp0>;
 	};
 };
-#endif

@@ -6,7 +6,8 @@ define KernelPackage/drm-rockchip
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=Rockchip DRM support
   DEPENDS:=@TARGET_rockchip +kmod-backlight +kmod-drm-kms-helper \
-	+kmod-multimedia-input +LINUX_6_1:kmod-drm-display-helper
+	+(LINUX_6_1||LINUX_6_6||LINUX_6_12):kmod-drm-display-helper \
+	+kmod-multimedia-input
   KCONFIG:= \
 	CONFIG_DRM_ROCKCHIP \
 	CONFIG_DRM_LOAD_EDID_FIRMWARE=y \
@@ -31,18 +32,22 @@ define KernelPackage/drm-rockchip
 	CONFIG_DRM_GEM_DMA_HELPER@ge6.1 \
 	CONFIG_DRM_PANEL=y \
 	CONFIG_DRM_PANEL_BRIDGE=y \
-	CONFIG_DRM_PANEL_SIMPLE
+	CONFIG_DRM_PANEL_SIMPLE \
+	CONFIG_ROCKCHIP_DW_HDMI_QP=y@ge6.12 \
+	CONFIG_PHY_ROCKCHIP_SAMSUNG_HDPTX=y@ge6.12
   FILES:= \
 	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi.ko \
 	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-cec.ko \
 	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-mipi-dsi.ko \
+	$(LINUX_DIR)/drivers/gpu/drm/bridge/analogix/analogix_dp.ko \
 	$(LINUX_DIR)/drivers/phy/rockchip/phy-rockchip-inno-hdmi.ko \
 	$(LINUX_DIR)/drivers/gpu/drm/drm_dp_aux_bus.ko@lt5.19 \
 	$(LINUX_DIR)/drivers/gpu/drm/drm_dma_helper.ko@ge6.1 \
 	$(LINUX_DIR)/drivers/gpu/drm/panel/panel-simple.ko \
 	$(LINUX_DIR)/drivers/gpu/drm/rockchip/rockchipdrm.ko \
-	$(LINUX_DIR)/drivers/media/cec/core/cec.ko
-  AUTOLOAD:=$(call AutoProbe,rockchipdrm phy-rockchip-inno-hdmi dw-hdmi-cec)
+	$(LINUX_DIR)/drivers/media/cec/core/cec.ko \
+	$(LINUX_DIR)/drivers/gpu/drm/bridge/synopsys/dw-hdmi-qp.ko@ge6.12
+  AUTOLOAD:=$(call AutoProbe,dw-hdmi-cec phy-rockchip-inno-hdmi dw-hdmi-qp rockchipdrm,1)
 endef
 
 define KernelPackage/drm-rockchip/description

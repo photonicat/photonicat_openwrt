@@ -17,7 +17,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
 
 --- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
 +++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -897,6 +897,14 @@
+@@ -901,6 +901,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 4>;
@@ -32,7 +32,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		nss0-thermal {
-@@ -904,6 +912,14 @@
+@@ -908,6 +916,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 5>;
@@ -47,7 +47,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		nss1-thermal {
-@@ -911,6 +927,14 @@
+@@ -915,6 +931,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 6>;
@@ -62,7 +62,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		wcss-phya0-thermal {
-@@ -918,6 +942,14 @@
+@@ -922,6 +946,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 7>;
@@ -77,7 +77,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		wcss-phya1-thermal {
-@@ -925,6 +957,14 @@
+@@ -929,6 +961,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 8>;
@@ -92,7 +92,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		cpu0_thermal: cpu0-thermal {
-@@ -932,6 +972,14 @@
+@@ -936,6 +976,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 9>;
@@ -107,7 +107,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		cpu1_thermal: cpu1-thermal {
-@@ -939,6 +987,14 @@
+@@ -943,6 +991,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 10>;
@@ -122,7 +122,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		cpu2_thermal: cpu2-thermal {
-@@ -946,6 +1002,14 @@
+@@ -950,6 +1006,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 11>;
@@ -137,7 +137,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		cpu3_thermal: cpu3-thermal {
-@@ -953,6 +1017,14 @@
+@@ -957,6 +1021,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 12>;
@@ -152,7 +152,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		cluster_thermal: cluster-thermal {
-@@ -960,6 +1032,14 @@
+@@ -964,6 +1036,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 13>;
@@ -167,7 +167,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		wcss-phyb0-thermal {
-@@ -967,6 +1047,14 @@
+@@ -971,6 +1051,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 14>;
@@ -182,7 +182,7 @@ Link: https://lore.kernel.org/r/20230607184448.2512179-1-robimarko@gmail.com
  		};
  
  		wcss-phyb1-thermal {
-@@ -974,6 +1062,14 @@
+@@ -978,6 +1066,14 @@
  			polling-delay = <1000>;
  
  			thermal-sensors = <&tsens 15>;

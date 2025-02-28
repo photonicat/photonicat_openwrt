@@ -1,0 +1,103 @@
+--- a/mt76x0/eeprom.c	2025-02-11 19:28:19.396988929 +0900
++++ b/mt76x0/eeprom.c	2025-02-11 19:28:28.368909976 +0900
+@@ -10,7 +10,7 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/etherdevice.h>
+-#include <asm/unaligned.h>
++#include <linux/unaligned.h>
+ #include "mt76x0.h"
+ #include "eeprom.h"
+ #include "../mt76x02_phy.h"
+
+--- a/mt76x02_eeprom.c	2025-02-11 19:28:38.820826705 +0900
++++ b/mt76x02_eeprom.c	2025-02-11 19:28:44.336786482 +0900
+@@ -4,7 +4,7 @@
+  * Copyright (C) 2018 Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+  */
+ 
+-#include <asm/unaligned.h>
++#include <linux/unaligned.h>
+ 
+ #include "mt76x02_eeprom.h"
+ 
+
+--- a/mt76x2/eeprom.c	2025-02-11 19:29:08.212641171 +0900
++++ b/mt76x2/eeprom.c	2025-02-11 19:29:14.296611468 +0900
+@@ -5,7 +5,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/of.h>
+-#include <asm/unaligned.h>
++#include <linux/unaligned.h>
+ #include "mt76x2.h"
+ #include "eeprom.h"
+ 
+
+--- a/mt7603/soc.c	2025-02-11 19:47:50.197998766 +0900
++++ b/mt7603/soc.c	2025-02-11 19:47:59.570289262 +0900
+@@ -52,15 +52,13 @@
+ 	return ret;
+ }
+ 
+-static int
++static void
+ mt76_wmac_remove(struct platform_device *pdev)
+ {
+ 	struct mt76_dev *mdev = platform_get_drvdata(pdev);
+ 	struct mt7603_dev *dev = container_of(mdev, struct mt7603_dev, mt76);
+ 
+ 	mt7603_unregister_device(dev);
+-
+-	return 0;
+ }
+ 
+ static const struct of_device_id of_wmac_match[] = {
+
+--- a/mt7615/mt7615_trace.h	2025-02-11 19:57:48.249280857 +0900
++++ b/mt7615/mt7615_trace.h	2025-02-11 19:58:35.049818728 +0900
+@@ -14,7 +14,7 @@
+ 
+ #define MAXNAME		32
+ #define DEV_ENTRY	__array(char, wiphy_name, 32)
+-#define DEV_ASSIGN	strlcpy(__entry->wiphy_name,	\
++#define DEV_ASSIGN	strscpy(__entry->wiphy_name,	\
+ 				wiphy_name(mt76_hw(dev)->wiphy), MAXNAME)
+ #define DEV_PR_FMT	"%s"
+ #define DEV_PR_ARG	__entry->wiphy_name
+
+--- a/usb_trace.h	2025-02-11 19:58:04.721459798 +0900
++++ b/usb_trace.h	2025-02-11 19:58:56.842099188 +0900
+@@ -14,7 +14,7 @@
+ 
+ #define MAXNAME		32
+ #define DEV_ENTRY	__array(char, wiphy_name, 32)
+-#define DEV_ASSIGN	strlcpy(__entry->wiphy_name,	\
++#define DEV_ASSIGN	strscpy(__entry->wiphy_name,	\
+ 				wiphy_name(dev->hw->wiphy), MAXNAME)
+ #define DEV_PR_FMT	"%s "
+ #define DEV_PR_ARG	__entry->wiphy_name
+
+--- a/trace.h	2025-02-11 19:58:13.217556560 +0900
++++ b/trace.h	2025-02-11 19:59:04.750205445 +0900
+@@ -14,7 +14,7 @@
+ 
+ #define MAXNAME		32
+ #define DEV_ENTRY	__array(char, wiphy_name, 32)
+-#define DEVICE_ASSIGN	strlcpy(__entry->wiphy_name,	\
++#define DEVICE_ASSIGN	strscpy(__entry->wiphy_name,	\
+ 				wiphy_name(dev->hw->wiphy), MAXNAME)
+ #define DEV_PR_FMT	"%s"
+ #define DEV_PR_ARG	__entry->wiphy_name
+
+--- a/mt76x02_trace.h	2025-02-11 20:52:33.051776598 +0900
++++ b/mt76x02_trace.h	2025-02-11 20:52:41.412033601 +0900
+@@ -14,7 +14,7 @@
+ 
+ #define MAXNAME		32
+ #define DEV_ENTRY	__array(char, wiphy_name, 32)
+-#define DEV_ASSIGN	strlcpy(__entry->wiphy_name,	\
++#define DEV_ASSIGN	strscpy(__entry->wiphy_name,	\
+ 				wiphy_name(mt76_hw(dev)->wiphy), MAXNAME)
+ #define DEV_PR_FMT	"%s"
+ #define DEV_PR_ARG	__entry->wiphy_name
