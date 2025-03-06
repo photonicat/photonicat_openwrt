@@ -392,6 +392,10 @@
 	sgmii_phy: ethernet-phy@0 {
 		compatible = "ethernet-phy-ieee802.3-c22";
 		reg = <0x0>;
+		max-speed = <1000>;
+		eee-broken-10gt;
+		eee-broken-10gkx4;
+		eee-broken-10gkr;
 	};
 };
 
@@ -529,12 +533,11 @@
 	no-mmc;
 	no-sd;
 	wakeup-source;
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	ath10k: wifi@1 {
-		#address-cells = <1>;
-		#size-cells = <0>;
 		reg = <1>;
-		compatible = "qcom,ath10k";
 		interrupt-parent = <&gpio2>;
 		interrupts = <RK_PB2 IRQ_TYPE_LEVEL_HIGH>;
 		status = "okay";
