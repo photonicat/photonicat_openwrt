@@ -1,0 +1,22 @@
+Signed-off-by: Nicolas Frattaroli <nicolas.frattaroli@collabora.com>
+---
+ include/dt-bindings/clock/rockchip,rk3576-cru.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/dt-bindings/clock/rockchip,rk3576-cru.h b/include/dt-bindings/clock/rockchip,rk3576-cru.h
+index 25aed298ac2c2e2d37e2b441c9d92ac68801be6e..f576e61bec7041455e10ac18c92f3b33ec0760e3 100644
+--- a/include/dt-bindings/clock/rockchip,rk3576-cru.h
++++ b/include/dt-bindings/clock/rockchip,rk3576-cru.h
+@@ -589,4 +589,9 @@
+ #define PCLK_EDP_S			569
+ #define ACLK_KLAD			570
+ 
++/* SCMI clocks, use these when changing clocks through SCMI */
++#define SCMI_ARMCLK_L			10
++#define SCMI_ARMCLK_B			11
++#define SCMI_CLK_GPU			456
++
+ #endif
+
+-- 
+2.48.1

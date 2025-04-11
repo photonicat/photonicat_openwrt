@@ -13,3 +13,19 @@ MBIM > AT+QCFG="usbnet",2;AT+QCFG="usbnet",2
 WCDMA only > AT+QCFG="nwscanmode",2,1;AT+QCFG="nwscanmode",2,1
 GSM only > AT+QCFG="nwscanmode",1,1;AT+QCFG="nwscanmode",1,1
 Scan all modes > AT+QCFG="nwscanmode",0,1;AT+QCFG="nwscanmode",0,11
+Query network mode;AT+QNWPREFCFG="mode_pref"
+Auto select network;AT+QNWPREFCFG="mode_pref",AUTO
+Only select LTE network;AT+QNWPREFCFG="mode_pref",LTE
+Only select 5G network;AT+QNWPREFCFG="mode_pref",NR5G
+Factory reset modem;AT+QCFG="ResetFactory"
+Query bands on 5G network;AT+QNWPREFCFG="nr5g_band"
+Query bands on LTE network;AT+QNWPREFCFG="lte_band"
+Use band 1 and 79 only on 5G;AT+QNWPREFCFG="nr5g_band",1:79
+Use band 1, 2, 3 on LTE;AT+QNWPREFCFG="lte_band",1:2:3
+Reset bands;AT+QNWPREFCFG="all_band_reset"
+Disable roam;AT+QNWPREFCFG="roam_pref",1
+Local roam;AT+QNWPREFCFG="roam_pref",3
+Free roam;AT+QNWPREFCFG="roam_pref",255
+Auto select ISP;AT+COPS=0
+Query ISP on usage;AT+COPS?
+Query ISP;AT+COPS=?
