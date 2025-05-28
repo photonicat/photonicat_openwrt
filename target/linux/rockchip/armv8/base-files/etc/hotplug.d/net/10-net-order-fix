@@ -1,0 +1,35 @@
+#!/bin/sh
+
+[ "$ACTION" = add ] || exit
+
+case "$(board_name)" in
+ariaboard,rk3568-photonicat)
+    WAN_IFACE="$(basename /sys/devices/platform/fe010000.ethernet/net/eth*)"
+    LAN_IFACE="$(basename /sys/devices/platform/fe2a0000.ethernet/net/eth*)"
+
+    if [ x"${WAN_IFACE}" != x"eth0" ]; then
+        if [ x"${LAN_IFACE}" = x"eth0" ]; then
+            ip link set dev "${LAN_IFACE}" name eth99
+            ip link set dev "${WAN_IFACE}" name eth0
+            ip link set dev eth99 name eth1
+        else
+            ip link set dev "${WAN_IFACE}" name eth0
+        fi
+    fi
+
+    WAN_IFACE="$(basename /sys/devices/platform/fe010000.ethernet/net/eth*)"
+    LAN_IFACE="$(basename /sys/devices/platform/fe2a0000.ethernet/net/eth*)"
+
+    if [ x"${LAN_IFACE}" != x"eth1" ]; then
+        if [ x"${WAN_IFACE}" = x"eth1" ]; then
+            ip link set dev "${WAN_IFACE}" name eth99
+            ip link set dev "${LAN_IFACE}" name eth1
+            ip link set dev eth99 name eth0
+        else
+            ip link set dev "${LAN_IFACE}" name eth1
+        fi
+    fi
+
+    ;;
+esac
+
