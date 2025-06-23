@@ -2,11 +2,52 @@
 
 case "$(board_name)" in
 rockchip,rk3568-photonicat)
-    exit
+    ;;
+ariaboard,photonicat2)
+    NEED_FIX_USB_PATH="1"
     ;;
 esac
 
 if [ "${ACTION}" = "add" ]; then
-  usbmode -s && sleep 5
-  [ -n "$(cat /proc/net/wireless | grep wlan)" ] && wifi config && wifi
+    IGNORE_ACTION="0"
+
+    if [ x"${NEED_FIX_USB_PATH}" = x"1" ]; then
+        USB_DEV_DETECTED="0"
+        USB_DEV=$(find /sys/devices/platform/soc/23000000.usb -name "xhci-hcd.*.auto" | head -1)
+        USB_BASENAME="$(basename ${USB_DEV})"
+        ADDED_DEV=$DEVPATH
+        if [[ "${ADDED_DEV}" == "*platform/soc/23000000.usb/xhci-hcd.*" ]]; then
+            IGNORE_ACTION="1"
+        fi
+
+        if [ "${USB_BASENAME}" != x"" ]; then
+            for i in $(seq 0 9); do
+                BUS=$(uci get wireless.@wifi-device[$i].path)
+                if [[ "${BUS}" == "*platform/soc/23000000.usb/xhci-hcd.*" ]]; then
+                    if [ -d "/sys/devices/${BUS}" ]; then
+                        USB_DEV_DETECTED="1"
+                        continue
+                    else
+                        WIFI_DEVICE=$(echo ${BUS} | sed "s/xhci-hcd.*.auto/${USB_BASENAME}/g")
+
+                        if [ x"${WIFI_DEVICE}" != x"" -a -d "/sys/devices/${WIFI_DEVICE}" ]; then
+                            uci set wireless.@wifi-device[$i].path="${WIFI_DEVICE}"
+                            uci commit wireless
+                            USB_DEV_DETECTED="1"
+                            break
+                        fi
+                    fi
+                fi
+            done
+        fi
+
+        if [ x"${USB_DEV_DETECTED}" = x"1" ]; then
+            wifi
+        fi
+    fi
+
+    usbmode -s && sleep 5
+    if [ x"${IGNORE_ACTION}" = x"0" ]; then
+        [ -n "$(cat /proc/net/wireless | grep wlan)" ] && wifi config && wifi
+    fi
 fi

@@ -9,7 +9,12 @@ start() {
 }
 
 stop() {
+    BOARD_NAME="$(strings /proc/device-tree/compatible | head -1)"
     BUGGY_MODEM="$(lsusb -d 2c7c:0125)"
+
+    if [ x"${BOARD_NAME}" ! = x"ariaboard,rk3568-photonicat"]; then
+        exit 0
+    fi
 
     if [ x"${BUGGY_MODEM}" != x"" ]; then
         if [ -c "${SERIAL_PORT}" ]; then

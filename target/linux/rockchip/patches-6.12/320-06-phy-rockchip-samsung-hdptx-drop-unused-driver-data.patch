@@ -1,0 +1,21 @@
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+---
+ drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c b/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
+index 70621687b5eb3581a81af20b23d0be53263003bb..c9f79c4e698cef405dd2b6a8c1071e296464c36e 100644
+--- a/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
++++ b/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
+@@ -397,7 +397,6 @@ struct rk_hdptx_phy {
+ 	int phy_id;
+ 
+ 	struct phy *phy;
+-	struct phy_config *phy_cfg;
+ 	struct clk_bulk_data *clks;
+ 	int nr_clks;
+ 	struct reset_control_bulk_data rsts[RST_MAX];
+
+-- 
+2.48.1

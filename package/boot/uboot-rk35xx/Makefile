@@ -13,9 +13,9 @@ PKG_RELEASE:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/radxa/u-boot
 
-PKG_SOURCE_DATE:=2025-03-04
-PKG_SOURCE_VERSION:=3ba926a35a0644f3168995fca4b77970ffe9a743
-PKG_MIRROR_HASH:=00a9d5c0fb74d536f03f55b128efead8be4077119ccf7ef2eba0a782cbfc17b1
+PKG_SOURCE_DATE:=2025-05-06
+PKG_SOURCE_VERSION:=575d1a114c66ad09e0d9d9f478c993fc243f5aec
+PKG_MIRROR_HASH:=29b3949e855aa700e8c70191f363a20e16154bc2c2b1fd736a2ab6ef780f4b96
 
 include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
@@ -48,8 +48,7 @@ define U-Boot/evb-rk3576
   BUILD_SUBTARGET:=armv8
   NAME:=RK3576 Evaluation
   BUILD_DEVICES:= \
-    armsom_sige5 \
-    ariaboard_photonicat2
+    armsom_sige5
   DEPENDS:=+PACKAGE_u-boot-evb-rk3576:rkbin-rk3576
   ATF:=rk3576_bl31_v1.12.elf
   DDR:=rk3576_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin
@@ -57,9 +56,22 @@ define U-Boot/evb-rk3576
   SOC:=rk3576
 endef
 
+define U-Boot/photonicat2-rk3576
+  BUILD_SUBTARGET:=armv8
+  NAME:=RK3576 photonicat2
+  BUILD_DEVICES:= \
+    ariaboard_photonicat2
+  DEPENDS:=+PACKAGE_u-boot-photonicat2-rk3576:rkbin-rk3576
+  ATF:=rk3576_bl31_v1.12.elf
+  DDR:=rk3576_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin
+  UBOOT_CONFIG:=photonicat2-rk3576
+  SOC:=rk3576
+endef
+
 UBOOT_TARGETS := \
   evb-rk3528 \
-  evb-rk3576
+  evb-rk3576 \
+  photonicat2-rk3576
 
 UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
 

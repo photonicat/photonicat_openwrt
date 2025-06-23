@@ -1,0 +1,36 @@
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+---
+ drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c b/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
+index 62de40515338730a56a83972ad57a7e71c3ca5cb..80dd896861bcac6ef9dbde410327b893f8039627 100644
+--- a/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
++++ b/drivers/phy/rockchip/phy-rockchip-samsung-hdptx.c
+@@ -1799,10 +1799,22 @@ static int rk_hdptx_phy_configure(struct phy *phy, union phy_configure_opts *opt
+ 	return 0;
+ }
+ 
++static int rk_hdptx_phy_validate(struct phy *phy, enum phy_mode mode,
++				 int submode, union phy_configure_opts *opts)
++{
++	struct rk_hdptx_phy *hdptx = phy_get_drvdata(phy);
++
++	if (mode != PHY_MODE_DP)
++		return rk_hdptx_phy_verify_hdmi_config(hdptx, &opts->hdmi);
++
++	return rk_hdptx_phy_verify_dp_config(hdptx, &opts->dp);
++}
++
+ static const struct phy_ops rk_hdptx_phy_ops = {
+ 	.power_on  = rk_hdptx_phy_power_on,
+ 	.power_off = rk_hdptx_phy_power_off,
+ 	.configure = rk_hdptx_phy_configure,
++	.validate  = rk_hdptx_phy_validate,
+ 	.owner	   = THIS_MODULE,
+ };
+ 
+
+-- 
+2.48.1

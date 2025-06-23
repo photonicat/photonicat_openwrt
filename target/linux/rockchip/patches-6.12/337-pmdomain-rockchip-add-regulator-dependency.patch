@@ -1,0 +1,20 @@
+Fixes: db6df2e3fc16 ("pmdomain: rockchip: add regulator support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/pmdomain/rockchip/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/pmdomain/rockchip/Kconfig b/drivers/pmdomain/rockchip/Kconfig
+index 7e4f9b628f0b..218d43186e5b 100644
+--- a/drivers/pmdomain/rockchip/Kconfig
++++ b/drivers/pmdomain/rockchip/Kconfig
+@@ -4,6 +4,7 @@
+ config ROCKCHIP_PM_DOMAINS
+ 	bool "Rockchip generic power domain"
+ 	depends on PM
++	depends on REGULATOR
+ 	select PM_GENERIC_DOMAINS
+ 	help
+ 	  Say y here to enable power domain support.
+--
+2.39.5

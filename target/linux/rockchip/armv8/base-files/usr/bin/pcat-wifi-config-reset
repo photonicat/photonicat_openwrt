@@ -1,8 +1,14 @@
 #!/bin/sh
 
-SDIO_WIFIDEVICE="platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001/mmc2:0001:1"
+BOARD_NAME="$(strings /proc/device-tree/compatible | head -1)"
 
-OEM_WIFI_SSID_PREFIX="photonicat"
+if [ x"${BOARD_NAME}" = x"ariaboard,photonicat2" ]; then
+    OEM_WIFI_SSID_PREFIX="photonicat2"
+else
+    OEM_WIFI_SSID_PREFIX="photonicat"
+    SDIO_WIFIDEVICE="platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001/mmc2:0001:1"
+fi
+
 OEM_WIFI_PASSWORD="photonicat"
 OEM_WIFI_IS_UNIQUE="1"
 
@@ -16,7 +22,7 @@ EMMC_SERIAL="${EMMC_SERIAL_RAW:2:8}"
 WIFI_DEVICE=""
 SSID_SUFFIX="${EMMC_SERIAL}"
 
-if [ -d "/sys/devices/platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001" ]; then
+if [ x"${SDIO_WIFIDEVICE}" != x"" -a -d "/sys/devices/platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001" ]; then
     RETRY_COUNT=0
 
     while [ ${RETRY_COUNT} -le 60 ]; do
@@ -32,7 +38,9 @@ if [ -d "/sys/devices/platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001" ]; then
 
     WIFI_DEVICE="${SDIO_WIFIDEVICE}"
     SSID_SUFFIX="${MACADDR:4:8}"
-else
+fi
+
+if [ x"${WIFI_DEVICE}" = x"" ]; then
     for _WLAN_PHY in /sys/class/ieee80211/*; do
        if [ x"${_WLAN_PHY}" = x"" ]; then
            continue
@@ -49,14 +57,27 @@ else
            fi
        fi
 
-       USB_PID="$(cat ${WLAN_DEV}/../idProduct 2>/dev/null | awk '{print tolower($0)}')"
-       USB_VID="$(cat ${WLAN_DEV}/../idVendor 2>/dev/null | awk '{print tolower($0)}')"
+       USB_PID="$(cat ${WLAN_DEV}/idProduct 2>/dev/null | awk '{print tolower($0)}')"
+       USB_VID="$(cat ${WLAN_DEV}/idVendor 2>/dev/null | awk '{print tolower($0)}')"
 
        if [ x"${USB_VID}" = x"0e8d" -a x"${USB_PID}" = x"7961" ]; then
            WIFI_DEVICE="${WLAN_DEV:13}"
+           MACADDR=$(cat "/sys/devices/${WIFI_DEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
+           SSID_SUFFIX="${MACADDR:4:8}"
+           break
+       fi
+
+       if [ x"${USB_VID}" = x"a69c" -a x"${USB_PID}" = x"8d81" ]; then
+           WIFI_DEVICE="${WLAN_DEV:13}"
+           MACADDR=$(cat "/sys/devices/${WIFI_DEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
+           SSID_SUFFIX="${MACADDR:4:8}"
            break
        fi
     done
+fi
+
+if [ x"${WIFI_DEVICE}" = x"" ]; then
+    exit 0
 fi
 
 if [ x"${OEM_WIFI_IS_UNIQUE}" != x"0" ]; then

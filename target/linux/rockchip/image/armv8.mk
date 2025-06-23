@@ -18,7 +18,7 @@ define Device/ariaboard_photonicat
   SOC := rk3568
   UBOOT_DEVICE_NAME := photonicat-rk3568
   IMAGE/sysupgrade.img.gz := boot-common | boot-script vop | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := photonicat-firmware kmod-drm-rockchip kmod-ath10k kmod-ath10k-sdio pcat-manager wpad
+  DEVICE_PACKAGES := photonicat-firmware kmod-drm-rockchip kmod-ath10k kmod-ath10k-sdio pcat-manager-v1 wpad
 endef
 TARGET_DEVICES += ariaboard_photonicat
 
@@ -27,7 +27,7 @@ define Device/ariaboard_photonicat2
   DEVICE_MODEL := photonicat2
   SOC := rk3576
   DEVICE_DTS := rockchip/rk3576-photonicat2
-  UBOOT_DEVICE_NAME := evb-rk3576
+  UBOOT_DEVICE_NAME := photonicat2-rk3576
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3576 | pine64-img | gzip | append-metadata
 endef
 TARGET_DEVICES += ariaboard_photonicat2
@@ -36,7 +36,7 @@ define Device/armsom_sige1
   DEVICE_VENDOR := ArmSoM
   DEVICE_MODEL := Sige1
   DEVICE_DTS := rockchip/rk3528-armsom-sige1
-  UBOOT_DEVICE_NAME := evb-rk3528
+  UBOOT_DEVICE_NAME := generic-rk3528
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3528 | pine64-img | gzip | append-metadata
   DEVICE_PACKAGES := brcmfmac-firmware-43752-sdio kmod-brcmfmac kmod-r8125 wpad -urngd
 endef
@@ -295,7 +295,7 @@ define Device/hinlink_opc-h28k
   DEVICE_VENDOR := HINLINK
   DEVICE_MODEL := OPC-H28K
   SOC := rk3528
-  UBOOT_DEVICE_NAME := evb-rk3528
+  UBOOT_DEVICE_NAME := generic-rk3528
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3528 | pine64-img | gzip | append-metadata
   DEVICE_PACKAGES := kmod-r8168 -urngd
 endef
@@ -305,9 +305,9 @@ define Device/hinlink_opc-h29k
   DEVICE_VENDOR := HINLINK
   DEVICE_MODEL := OPC-H29K
   SOC := rk3528
-  UBOOT_DEVICE_NAME := evb-rk3528
+  UBOOT_DEVICE_NAME := generic-rk3528
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3528 | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-aic8800 kmod-fb-tft-st7789v wpad-openssl -urngd
+  DEVICE_PACKAGES := kmod-aic8800s kmod-fb-tft-st7789v wpad-openssl -urngd
 endef
 TARGET_DEVICES += hinlink_opc-h29k
 
@@ -337,9 +337,9 @@ define Device/hinlink_opc-ht2
   DEVICE_VENDOR := HINLINK
   DEVICE_MODEL := OPC-HT2
   SOC := rk3528
-  UBOOT_DEVICE_NAME := evb-rk3528
+  UBOOT_DEVICE_NAME := generic-rk3528
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3528 | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-aic8800 wpad-openssl -urngd
+  DEVICE_PACKAGES := kmod-aic8800s wpad-openssl -urngd
 endef
 TARGET_DEVICES += hinlink_opc-ht2
 
@@ -387,7 +387,7 @@ define Device/radxa_e20c
   DEVICE_VENDOR := Radxa
   DEVICE_MODEL := E20C
   DEVICE_DTS := rockchip/rk3528-radxa-e20c
-  UBOOT_DEVICE_NAME := evb-rk3528
+  UBOOT_DEVICE_NAME := radxa-e20c-rk3528
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3528 | pine64-img | gzip | append-metadata
   DEVICE_PACKAGES := kmod-gpio-button-hotplug kmod-r8168 -urngd
 endef
@@ -419,7 +419,7 @@ define Device/radxa_rock-3c
   SOC := rk3566
   UBOOT_DEVICE_NAME := rock-3c-rk3566
   IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-aic8800 wpad-openssl
+  DEVICE_PACKAGES := kmod-aic8800s wpad-openssl
 endef
 TARGET_DEVICES += radxa_rock-3c
 
@@ -441,6 +441,16 @@ define Device/radxa_rock-5a
   DEVICE_PACKAGES := kmod-hwmon-pwmfan
 endef
 TARGET_DEVICES += radxa_rock-5a
+
+define Device/radxa_rock-5b
+  DEVICE_VENDOR := Radxa
+  DEVICE_MODEL := ROCK 5B
+  SOC := rk3588
+  UBOOT_DEVICE_NAME := rock5b-rk3588
+  IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
+  DEVICE_PACKAGES := kmod-r8125-rss kmod-hwmon-pwmfan
+endef
+TARGET_DEVICES += radxa_rock-5b
 
 define Device/rongpin_king3399
   DEVICE_VENDOR := Rongpin
@@ -468,7 +478,8 @@ define Device/rumu3f_fine-3399
   SOC := rk3399
   UBOOT_DEVICE_NAME := fine3399-rk3399
   IMAGE/sysupgrade.img.gz := boot-common | boot-script | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-gpio-button-hotplug kmod-r8168
+  DEVICE_PACKAGES := brcmfmac-firmware-43430b0-sdio brcmfmac-nvram-43430b0-sdio \
+	kmod-brcmfmac kmod-gpio-button-hotplug kmod-usb-net-rtl8152 wpad
 endef
 TARGET_DEVICES += rumu3f_fine-3399
 
@@ -573,15 +584,15 @@ TARGET_DEVICES += xunlong_orangepi-r1-plus-lts
 define Device/widora_mangopi-m28
   DEVICE_VENDOR := Widora
   SOC := rk3528
-  UBOOT_DEVICE_NAME := evb-rk3528
+  UBOOT_DEVICE_NAME := generic-rk3528
   IMAGE/sysupgrade.img.gz := boot-common | boot-script rk3528 | pine64-img | gzip | append-metadata
-  DEVICE_PACKAGES := kmod-aic8800 kmod-r8168 wpad-openssl -urngd
+  DEVICE_PACKAGES := kmod-aic8800s wpad-openssl -urngd
 endef
 
 define Device/widora_mangopi-m28c
 $(call Device/widora_mangopi-m28)
   DEVICE_MODEL := MangoPi M28C
-  DEVICE_PACKAGES += kmod-gpio-button-hotplug kmod-usb-serial-option
+  DEVICE_PACKAGES += kmod-usb-serial-option
 endef
 TARGET_DEVICES += widora_mangopi-m28c
 
