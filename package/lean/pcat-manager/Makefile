@@ -5,7 +5,7 @@ PKG_VERSION:=2.0.0
 PKG_RELEASE:=12
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=ssh://git@git.g77k.com/supercatexpert/pcat-manager.git
+PKG_SOURCE_URL:=https://github.com/photonicat/rockchip_rk3568_pcat_manager
 PKG_SOURCE_DATE:=2025-06-12
 PKG_SOURCE_VERSION:=14e2449abd9c76b74c81b855ebe2ac01262a46b7
 
