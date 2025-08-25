@@ -1,5 +1,12 @@
 #!/bin/sh
 
+BOARD_NAME="$(strings /proc/device-tree/compatible | head -1)"
+HOST_NAME_DEFAULT="photonicat-openwrt"
+
+if [ x"${BOARD_NAME}" = x"ariaboard,photonicat2" ]; then
+    HOST_NAME_DEFAULT="photonicat2-openwrt"
+fi
+
 mkdir -p /tmp/oem
 mount -t vfat -o ro /dev/mmcblk0boot1 /tmp/oem 2>/dev/null || true
 if [ -f "/tmp/oem/oem.txt" ]; then
@@ -23,7 +30,7 @@ uci set system.@system[0].zonename=Asia/Shanghai
 if [ x"${OEM_PASSWORD}" != x"" ]; then
     uci set system.@system[0].hostname=openwrt
 else
-    uci set system.@system[0].hostname=photonicat-openwrt
+    uci set system.@system[0].hostname="${HOST_NAME_DEFAULT}"
 fi
 
 uci commit system
@@ -55,9 +62,6 @@ fi
 sed -i '/check_signature/d' /etc/opkg.conf
 
 sed -i '/REDIRECT --to-ports 53/d' /etc/firewall.user
-
-sed -i '/option disabled/d' /etc/config/wireless
-sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
 echo "DISTRIB_REVISION='R25.02.0'" >> /etc/openwrt_release

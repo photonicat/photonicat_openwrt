@@ -2,12 +2,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcat-manager
 PKG_VERSION:=2.0.0
-PKG_RELEASE:=12
+PKG_RELEASE:=18
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/photonicat/rockchip_rk3568_pcat_manager
-PKG_SOURCE_DATE:=2025-06-12
-PKG_SOURCE_VERSION:=14e2449abd9c76b74c81b855ebe2ac01262a46b7
+PKG_SOURCE_DATE:=2025-08-22
+PKG_SOURCE_VERSION:=35206061e1099e6bf91e7f037f435c243264a1c2
 
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=LICENSE
@@ -37,6 +37,10 @@ define Package/pcat-manager/install
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/bin/pcat-manager \
 		$(1)/usr/bin/pcat-manager
+
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)/usr/bin/pcat-pmu-updater \
+		$(1)/usr/bin/pcat-pmu-updater
 
 	$(INSTALL_DIR) $(1)/etc
 

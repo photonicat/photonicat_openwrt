@@ -446,9 +446,9 @@ mac80211_hostapd_setup_base() {
 
 	if [ "$enable_ax" != "0" ]; then
 		json_get_vars \
-			he_su_beamformer:1 \
-			he_su_beamformee:1 \
-			he_mu_beamformer:1 \
+			he_su_beamformer:0 \
+			he_su_beamformee:0 \
+			he_mu_beamformer:0 \
 			he_twt_required:0 \
 			he_spr_sr_control:3 \
 			he_spr_psr_enabled:0 \

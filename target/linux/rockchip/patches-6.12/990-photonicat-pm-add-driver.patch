@@ -37,7 +37,7 @@
 +obj-$(CONFIG_PHOTONICAT_PM) += photonicat-pm.o
 --- /dev/null
 +++ b/drivers/staging/photonicat-pm/photonicat-pm.c
-@@ -0,0 +1,1523 @@
+@@ -0,0 +1,1526 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * Copyright (c) 2025, Kyosuke Nekoyashiki <supercatexpert@gmail.com>
@@ -569,7 +569,7 @@
 +	pm_data->on_battery = on_battery;
 +	pm_data->on_charger = (charger_voltage >= 4200);
 +	pm_data->rtc_year = data[8] + ((u16)data[9] << 8);
-+	pm_data->rtc_month = data[10];
++	pm_data->rtc_month = data[10] - 1;
 +	pm_data->rtc_day = data[11];
 +	pm_data->rtc_hour = data[12];
 +	pm_data->rtc_min = data[13];
@@ -947,7 +947,7 @@
 +	y = t->tm_year + 1900;
 +	date_data[0] = y & 0xFF;
 +	date_data[1] = (y >> 8) & 0xFF;
-+	date_data[2] = t->tm_mon;
++	date_data[2] = t->tm_mon + 1;
 +	date_data[3] = t->tm_mday;
 +	date_data[4] = t->tm_hour;
 +	date_data[5] = t->tm_min;
@@ -1209,6 +1209,9 @@
 +			} else {
 +				pm_data->ctl_write_buffer_used = 0;
 +			}
++
++			if(pm_data->ctl_write_buffer_used==0)
++				pm_data->ctl_write_buffer_ready = false;
 +		}
 +		mutex_unlock(&pm_data->ctl_mutex);
 +

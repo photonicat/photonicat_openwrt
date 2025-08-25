@@ -765,12 +765,16 @@
 
 	usb {
 		usb_otg_pwren: usb-otg-pwren {
-			rockchip,pins = <4 RK_PC4 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <4 RK_PC4 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
 
 		usb_hub_switch: usb-hub-switch {
-			rockchip,pins = <0 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <0 RK_PC2 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
+		usb_hub_reset: usb-hub-reset {
+			rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+
 	};
 
 	spi1 {
@@ -818,7 +822,7 @@
 &sdhci {
 	bus-width = <8>;
 	full-pwr-cycle-in-suspend;
-	max-frequency = <150000000>;
+	max-frequency = <100000000>;
 	mmc-hs400-1_8v;
 	mmc-hs400-enhanced-strobe;
 	/delete-property/ supports-cqe;
@@ -869,6 +873,7 @@
 	reset-gpios = <&gpio4 RK_PB2 0>;
 	vpcie3v3-supply = <&vcc_3v3_pcie1>;
 	linux,pci-domain = <1>;
+	max-link-speed = <1>;
 	status = "okay";
 };
 
@@ -886,6 +891,11 @@
 	dr_mode = "host";
 	#address-cells = <1>;
 	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&usb_hub_reset>;
+	snps,dis_u2_susphy_quirk;
+	snps,usb2-lpm-disable;
+
 
 	/* 2.0 hub on port 1 */
 	hub_2_0: hub@1 {
@@ -893,7 +903,7 @@
 		reg = <1>;
 		peer-hub = <&hub_3_0>;
 		vdd-supply = <&vcc_3v3_s3>;
-		/* reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>; */
+		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
 	};
 
 	/* 3.0 hub on port 4 */
@@ -902,7 +912,7 @@
 		reg = <2>;
 		peer-hub = <&hub_2_0>;
 		vdd-supply = <&vcc_3v3_s3>;
-		/* reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>; */
+		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
 	};
 };
 
@@ -1005,13 +1015,6 @@
 };
 
 &sai6 {
-	status = "okay";
-};
-
-&pwm0_2ch_0 {
-	pinctrl-0 = <&pwm0m3_ch0>;
-	assigned-clocks = <&cru CLK_PMU1PWM>;
-	assigned-clock-rates = <100000000>;
 	status = "okay";
 };
 

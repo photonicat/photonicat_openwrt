@@ -1,0 +1,11 @@
+--- a/src/USB/driver_fw/drivers/aic8800/aic8800_fdrv/Makefile
++++ b/src/USB/driver_fw/drivers/aic8800/aic8800_fdrv/Makefile
+@@ -107,7 +107,7 @@ CONFIG_ONE_TXQ = n
+ CONFIG_PER_STA_FC = n
+ CONFIG_PREALLOC_RX_SKB ?= n
+ CONFIG_PREALLOC_TXQ ?= y
+-CONFIG_USE_WIRELESS_EXT = y
++CONFIG_USE_WIRELESS_EXT = n
+ CONFIG_DPD = y
+ CONFIG_FORCE_DPD_CALIB = y
+ CONFIG_LOFT_CALIB = n

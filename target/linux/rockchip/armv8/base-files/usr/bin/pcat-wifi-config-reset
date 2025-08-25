@@ -1,9 +1,11 @@
 #!/bin/sh
 
 BOARD_NAME="$(strings /proc/device-tree/compatible | head -1)"
+SCAN_INTERNAL_USB_WLAN="0"
 
 if [ x"${BOARD_NAME}" = x"ariaboard,photonicat2" ]; then
     OEM_WIFI_SSID_PREFIX="photonicat2"
+    SCAN_INTERNAL_USB_WLAN="1"
 else
     OEM_WIFI_SSID_PREFIX="photonicat"
     SDIO_WIFIDEVICE="platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001/mmc2:0001:1"
@@ -21,11 +23,12 @@ EMMC_SERIAL="${EMMC_SERIAL_RAW:2:8}"
 
 WIFI_DEVICE=""
 SSID_SUFFIX="${EMMC_SERIAL}"
+RETRY_COUNT_MAX="60"
 
 if [ x"${SDIO_WIFIDEVICE}" != x"" -a -d "/sys/devices/platform/fe2c0000.mmc/mmc_host/mmc2/mmc2:0001" ]; then
-    RETRY_COUNT=0
+    RETRY_COUNT="0"
 
-    while [ ${RETRY_COUNT} -le 60 ]; do
+    while [ ${RETRY_COUNT} -lt ${RETRY_COUNT_MAX} ]; do
         MACADDR=$(cat "/sys/devices/${SDIO_WIFIDEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
         RETRY_COUNT=$(expr ${RETRY_COUNT} + 1)
 
@@ -41,38 +44,54 @@ if [ x"${SDIO_WIFIDEVICE}" != x"" -a -d "/sys/devices/platform/fe2c0000.mmc/mmc_
 fi
 
 if [ x"${WIFI_DEVICE}" = x"" ]; then
-    for _WLAN_PHY in /sys/class/ieee80211/*; do
-       if [ x"${_WLAN_PHY}" = x"" ]; then
-           continue
-       fi
+    RETRY_COUNT="0"
 
-       WLAN_DEV="$(realpath ${_WLAN_PHY}/../..)"
+    while [ ${RETRY_COUNT} -lt ${RETRY_COUNT_MAX} ]; do
+        RETRY_COUNT=$(expr ${RETRY_COUNT} + 1)
 
-       if [ x"${WIFI_DEVICE}" = x"" ]; then
-           IS_PCI_DEV="$(echo ${WLAN_DEV} | grep pci)"
-           if [ x"${IS_PCI_DEV}" != x"" ]; then
-               WIFI_DEVICE="${WLAN_DEV:22}"
-           else
-               WIFI_DEVICE="${WLAN_DEV:13}"
+        for _WLAN_PHY in /sys/class/ieee80211/*; do
+           if [ x"${_WLAN_PHY}" = x"" ]; then
+               continue
            fi
-       fi
 
-       USB_PID="$(cat ${WLAN_DEV}/idProduct 2>/dev/null | awk '{print tolower($0)}')"
-       USB_VID="$(cat ${WLAN_DEV}/idVendor 2>/dev/null | awk '{print tolower($0)}')"
+           WLAN_DEV="$(realpath ${_WLAN_PHY}/../..)"
 
-       if [ x"${USB_VID}" = x"0e8d" -a x"${USB_PID}" = x"7961" ]; then
-           WIFI_DEVICE="${WLAN_DEV:13}"
-           MACADDR=$(cat "/sys/devices/${WIFI_DEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
-           SSID_SUFFIX="${MACADDR:4:8}"
-           break
-       fi
+           if [ x"${WIFI_DEVICE}" = x"" ]; then
+               IS_PCI_DEV="$(echo ${WLAN_DEV} | grep pci)"
+               if [ x"${IS_PCI_DEV}" != x"" ]; then
+                   WIFI_DEVICE="${WLAN_DEV:22}"
+               else
+                   WIFI_DEVICE="${WLAN_DEV:13}"
+               fi
+           fi
 
-       if [ x"${USB_VID}" = x"a69c" -a x"${USB_PID}" = x"8d81" ]; then
-           WIFI_DEVICE="${WLAN_DEV:13}"
-           MACADDR=$(cat "/sys/devices/${WIFI_DEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
-           SSID_SUFFIX="${MACADDR:4:8}"
-           break
-       fi
+           USB_PID="$(cat ${WLAN_DEV}/idProduct 2>/dev/null | awk '{print tolower($0)}')"
+           USB_VID="$(cat ${WLAN_DEV}/idVendor 2>/dev/null | awk '{print tolower($0)}')"
+
+           if [ x"${SCAN_INTERNAL_USB_WLAN}" = x"1" -a x"${USB_VID}" = x"0e8d" -a x"${USB_PID}" = x"7961" ]; then
+               WIFI_DEVICE="${WLAN_DEV:13}"
+               MACADDR=$(cat "/sys/devices/${WIFI_DEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
+               SSID_SUFFIX="${MACADDR:4:8}"
+               break
+           fi
+
+           if [ x"${SCAN_INTERNAL_USB_WLAN}" = x"1" -a x"${USB_VID}" = x"a69c" -a x"${USB_PID}" = x"8d81" ]; then
+               WIFI_DEVICE="${WLAN_DEV:13}"
+               MACADDR=$(cat "/sys/devices/${WIFI_DEVICE}/ieee80211/"*/macaddress | tail -n 1 | awk '{gsub(/:/,""); print tolower($0)}')
+               SSID_SUFFIX="${MACADDR:4:8}"
+               break
+           fi
+        done
+
+        if [ x"${SCAN_INTERNAL_USB_WLAN}" != x"1" -a x"${WIFI_DEVICE}" != x"" ]; then
+            break
+        fi
+
+        if [ x"${MACADDR}" != x"" ]; then
+            break
+        fi
+
+        sleep 5
     done
 fi
 
@@ -120,3 +139,7 @@ sleep 3
 wifi config
 wifi reconf
 wifi
+
+touch /tmp/pcat-wifi-ready.tmp
+
+exit 0

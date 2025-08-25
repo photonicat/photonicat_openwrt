@@ -9,10 +9,10 @@ PKG_NAME:=aic8800
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2024-06-20
+PKG_SOURCE_DATE:=2025-08-12
 PKG_SOURCE_URL:=https://github.com/radxa-pkg/aic8800.git
-PKG_SOURCE_VERSION:=8ad987876a6220fffb40a755e0454250ce2c5fdd
-PKG_MIRROR_HASH:=4a22e28a4341eb7516f03ea7e6c1c0523013e1aaf72c17428eb3749c8f553856
+PKG_SOURCE_VERSION:=553c43022bd87804ece08b13782c04386823c05a
+PKG_MIRROR_HASH:=024c7598c2a6db5bfaa928f51f28bd932a67c0052ea0ebde72897c2581f77e71
 
 ifeq ($(BUILD_VARIANT),sdio)
 MAKE_PATH:=src/SDIO/driver_fw/driver/aic8800
@@ -31,12 +31,11 @@ define KernelPackage/aic8800s
   SUBMENU:=Wireless Drivers
   TITLE:=AIC8800 SDIO wireless support
   DEPENDS:=+kmod-mac80211 +kmod-mmc \
-	+@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
+	+@DRIVER_11AC_SUPPORT +@DRIVER_11AX_SUPPORT
   FILES:= \
 	$(PKG_BUILD_DIR)/$(MAKE_PATH)/aic8800_bsp/aic8800_bsp.ko \
 	$(PKG_BUILD_DIR)/$(MAKE_PATH)/aic8800_fdrv/aic8800_fdrv.ko
   AUTOLOAD:=$(call AutoProbe,aic8800_bsp aic8800_fdrv)
-  MODPARAMS.aic8800_fdrv:=he_on=n
   VARIANT:=sdio
 endef
 
@@ -44,26 +43,24 @@ define KernelPackage/aic8800u
   SUBMENU:=Wireless Drivers
   TITLE:=AIC8800 USB wireless support
   DEPENDS:=+kmod-mac80211 +kmod-usb-core @USB_SUPPORT \
-	+@DRIVER_11N_SUPPORT +@DRIVER_11AC_SUPPORT
+	+@DRIVER_11AC_SUPPORT +@DRIVER_11AX_SUPPORT
   FILES:= \
 	$(PKG_BUILD_DIR)/$(MAKE_PATH)/aic_load_fw/aic_load_fw.ko \
-	$(PKG_BUILD_DIR)/$(MAKE_PATH)/aic8800_fdrv/aic8800_fdrv.ko
-  AUTOLOAD:=$(call AutoProbe,aic_load_fw aic8800_fdrv)
-  MODPARAMS.aic8800_fdrv:=he_on=n
-  CONFLICTS:=kmod-aic8800s
+	$(PKG_BUILD_DIR)/$(MAKE_PATH)/aic8800_fdrv/aic8800_usb.ko
+  AUTOLOAD:=$(call AutoProbe,aic_load_fw aic8800_usb)
   VARIANT:=usb
 endef
 
 NOSTDINC_FLAGS := \
 	$(KERNEL_NOSTDINC_FLAGS) \
 	-I$(PKG_BUILD_DIR) \
-	-I$(STAGING_DIR)/usr/include/mac80211-backport/uapi \
 	-I$(STAGING_DIR)/usr/include/mac80211-backport \
-	-I$(STAGING_DIR)/usr/include/mac80211/uapi \
+	-I$(STAGING_DIR)/usr/include/mac80211-backport/uapi \
 	-I$(STAGING_DIR)/usr/include/mac80211 \
+	-I$(STAGING_DIR)/usr/include/mac80211/uapi \
 	-include backport/backport.h
 
-EXTRA_CFLAGS:= -DBUILD_OPENWRT
+EXTRA_CFLAGS:= -Wno-missing-prototypes -Wno-missing-declarations -Wno-restrict -Wno-attribute-warning
 
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
