@@ -21,25 +21,54 @@ if [ "${ACTION}" = "add" ]; then
         fi
 
         if [ "${USB_BASENAME}" != x"" ]; then
-            for i in $(seq 0 9); do
-                BUS=$(uci get wireless.@wifi-device[$i].path)
-                if [[ "${BUS}" == "*platform/soc/23000000.usb/xhci-hcd.*" ]]; then
-                    if [ -d "/sys/devices/${BUS}" ]; then
-                        USB_DEV_DETECTED="1"
-                        continue
-                    else
-                        WIFI_DEVICE=$(echo ${BUS} | sed "s/xhci-hcd.*.auto/${USB_BASENAME}/g")
+            WLAN_CONFIG_CHANGED="0"
+            while true; do
+                USB_WLAN_DUP="0"
+                i="0"
+                while true; do
+                    RADIO_DEV="$(uci -q get wireless.@wifi-iface[$i].device)"
+                    if [ x"${RADIO_DEV}" = x"" ]; then
+                        break
+                    fi
 
-                        if [ x"${WIFI_DEVICE}" != x"" -a -d "/sys/devices/${WIFI_DEVICE}" ]; then
-                            uci set wireless.@wifi-device[$i].path="${WIFI_DEVICE}"
-                            uci commit wireless
-                            USB_DEV_DETECTED="1"
+                    BUS="$(uci -q get wireless.${RADIO_DEV}.path)"
+
+                    if [[ "${BUS}" == "*platform/soc/23000000.usb/xhci-hcd.*" ]]; then
+                        USB_WLAN_DUP="$(expr ${USB_WLAN_DUP} + 1)"
+
+                        if [ "${USB_WLAN_DUP}" -le 1 ]; then
+                            if [ -d "/sys/devices/${BUS}" ]; then
+                                USB_DEV_DETECTED="1"
+                            else
+                                WIFI_DEVICE=$(echo ${BUS} | sed "s/xhci-hcd.*.auto/${USB_BASENAME}/g")
+
+                                if [ x"${WIFI_DEVICE}" != x"" -a -d "/sys/devices/${WIFI_DEVICE}" ]; then
+                                    uci set wireless.${RADIO_DEV}.path="${WIFI_DEVICE}"
+                                    USB_DEV_DETECTED="1"
+                                    WLAN_CONFIG_CHANGED="1"
+                                fi
+                            fi
+                        else
+                            uci delete wireless.${RADIO_DEV}
+                            uci delete wireless.@wifi-iface[$i]
+                            WLAN_CONFIG_CHANGED="1"
                             break
                         fi
                     fi
+
+                    i="$(expr $i + 1)"
+                done
+
+                if [ "${USB_WLAN_DUP}" -le 1 ]; then
+                    break
                 fi
             done
+
+            if [ x"${WLAN_CONFIG_CHANGED}" != x"0" ]; then
+                uci commit wireless
+            fi
         fi
+
 
         if [ x"${USB_DEV_DETECTED}" = x"1" ]; then
             wifi
