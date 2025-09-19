@@ -286,6 +286,18 @@
 		label = "rfkill-usb-wwan";
 		radio-type = "wwan";
 		shutdown-gpios = <&gpio0 RK_PC0 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio0 RK_PB7 GPIO_ACTIVE_LOW>;
+        };
+
+	pcat-usb-wdt {
+		compatible = "pcat-usb-watchdog";
+		pinctrl-names = "default";
+		pinctrl-0 = <&usb_hub_reset>;
+		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
+		target-vid = <0x05e3>;
+		target-pid = <0x0610>;
+		reset-ms = <50>;
+		scan-interval = <15000>;
         };
 };
 
@@ -771,10 +783,10 @@
 		usb_hub_switch: usb-hub-switch {
 			rockchip,pins = <0 RK_PC2 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
+
 		usb_hub_reset: usb-hub-reset {
 			rockchip,pins = <3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
 		};
-
 	};
 
 	spi1 {
@@ -814,7 +826,8 @@
 			rockchip,pins = <0 RK_PD0 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
 		rfkill_usb_wwan: rfkill-usb-wwan {
-			rockchip,pins = <0 RK_PC0 RK_FUNC_GPIO &pcfg_pull_down>;
+			rockchip,pins = <0 RK_PC0 RK_FUNC_GPIO &pcfg_pull_down>,
+					<0 RK_PB7 RK_FUNC_GPIO &pcfg_pull_up>;
 		};
 	};
 };
@@ -891,8 +904,6 @@
 	dr_mode = "host";
 	#address-cells = <1>;
 	#size-cells = <0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&usb_hub_reset>;
 	snps,dis_u2_susphy_quirk;
 	snps,usb2-lpm-disable;
 
@@ -903,7 +914,6 @@
 		reg = <1>;
 		peer-hub = <&hub_3_0>;
 		vdd-supply = <&vcc_3v3_s3>;
-		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
 	};
 
 	/* 3.0 hub on port 4 */
@@ -912,7 +922,6 @@
 		reg = <2>;
 		peer-hub = <&hub_2_0>;
 		vdd-supply = <&vcc_3v3_s3>;
-		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_LOW>;
 	};
 };
 
@@ -1038,12 +1047,5 @@
 		gpios = <RK_PB5 GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "wwan-airplane-ctrl";
-	};
-
-	wwan-reset {
-		gpio-hog;
-		gpios = <RK_PB7 GPIO_ACTIVE_HIGH>;
-		output-low;
-		line-name = "wwan-reset";
 	};
 };

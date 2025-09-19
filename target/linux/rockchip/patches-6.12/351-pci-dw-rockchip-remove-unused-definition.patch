@@ -1,0 +1,33 @@
+From c2f61b8479b2abcd9e20f8bd4c46e54bb7f5286f Mon Sep 17 00:00:00 2001
+From: Hans Zhang <18255117159@163.com>
+Date: Sun, 27 Apr 2025 20:53:14 +0800
+Subject: [PATCH] PCI: dw-rockchip: Remove unused PCIE_CLIENT_GENERAL_DEBUG
+ definition
+
+The PCIE_CLIENT_GENERAL_DEBUG register offset is defined but never
+used in the driver. It's presence adds noise to the register map.
+
+Remove this unused definition to keep the register list minimal and aligned
+with actual hardware usage.
+
+Signed-off-by: Hans Zhang <18255117159@163.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Niklas Cassel <cassel@kernel.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://patch.msgid.link/20250427125316.99627-2-18255117159@163.com
+---
+ drivers/pci/controller/dwc/pcie-dw-rockchip.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/pci/controller/dwc/pcie-dw-rockchip.c b/drivers/pci/controller/dwc/pcie-dw-rockchip.c
+index 7790a9f33e48eb..e7d33d545d5b80 100644
+--- a/drivers/pci/controller/dwc/pcie-dw-rockchip.c
++++ b/drivers/pci/controller/dwc/pcie-dw-rockchip.c
+@@ -47,7 +47,6 @@
+ #define PCIE_CLIENT_GENERAL_CONTROL	0x0
+ #define PCIE_CLIENT_INTR_STATUS_LEGACY	0x8
+ #define PCIE_CLIENT_INTR_MASK_LEGACY	0x1c
+-#define PCIE_CLIENT_GENERAL_DEBUG	0x104
+ #define PCIE_CLIENT_HOT_RESET_CTRL	0x180
+ #define PCIE_CLIENT_LTSSM_STATUS	0x300
+ #define PCIE_LTSSM_ENABLE_ENHANCE	BIT(4)

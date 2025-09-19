@@ -1,6 +1,6 @@
 --- a/include/linux/if_bridge.h
 +++ b/include/linux/if_bridge.h
-@@ -71,6 +71,9 @@ void brioctl_set(int (*hook)(struct net
+@@ -72,6 +72,9 @@ void brioctl_set(int (*hook)(struct net
  int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
  		  struct ifreq *ifr, void __user *uarg);
  
@@ -35,7 +35,7 @@
  				   const struct nf_ct_event_notifier *nb);
 --- a/net/Kconfig
 +++ b/net/Kconfig
-@@ -512,6 +512,9 @@ config FAILOVER
+@@ -521,6 +521,9 @@ config FAILOVER
  	  migration of VMs with direct attached VFs by failing over to the
  	  paravirtual datapath when the VF is unplugged.
  
@@ -78,7 +78,7 @@
  	struct net_bridge_port *p;
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -3579,9 +3579,17 @@ static int xmit_one(struct sk_buff *skb,
+@@ -3654,9 +3654,17 @@ static int xmit_one(struct sk_buff *skb,
  {
  	unsigned int len;
  	int rc;
@@ -95,9 +95,9 @@
 +	}
 +#endif
  
- 	len = skb->len;
- 	trace_net_dev_start_xmit(skb, dev);
-@@ -5417,6 +5425,11 @@ void netdev_rx_handler_unregister(struct
+ #ifdef CONFIG_ETHERNET_PACKET_MANGLE
+ 	if (dev->eth_mangle_tx && !(skb = dev->eth_mangle_tx(dev, skb)))
+@@ -5505,6 +5513,11 @@ void netdev_rx_handler_unregister(struct
  }
  EXPORT_SYMBOL_GPL(netdev_rx_handler_unregister);
  
@@ -109,7 +109,7 @@
  /*
   * Limit the use of PFMEMALLOC reserves to those protocols that implement
   * the special handling of PFMEMALLOC skbs.
-@@ -5465,6 +5478,10 @@ static int __netif_receive_skb_core(stru
+@@ -5553,6 +5566,10 @@ static int __netif_receive_skb_core(stru
  	int ret = NET_RX_DROP;
  	__be16 type;
  
@@ -120,7 +120,7 @@
  	net_timestamp_check(!READ_ONCE(net_hotdata.tstamp_prequeue), skb);
  
  	trace_netif_receive_skb(skb);
-@@ -5503,6 +5520,15 @@ another_round:
+@@ -5591,6 +5608,15 @@ another_round:
  			goto out;
  	}
  

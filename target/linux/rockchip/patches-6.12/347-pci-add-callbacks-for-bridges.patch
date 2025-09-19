@@ -1,0 +1,123 @@
+From a3751212a8eeece59d2018c455000f30ed7e5bb7 Mon Sep 17 00:00:00 2001
+From: Frank Li <Frank.Li@nxp.com>
+Date: Tue, 14 Jan 2025 15:37:08 -0500
+Subject: [PATCH] PCI: Add enable_device() and disable_device() callbacks for
+ bridges
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Some PCI host bridges require special handling when enabling or
+disabling PCI devices. For example, the i.MX95 platform has a lookup
+table to map Requester IDs to StreamIDs, which the SMMU and MSI
+controller use to identify the source of DMA accesses.
+
+Without this mapping, DMA accesses may target unintended memory, which
+would corrupt memory or read the wrong data.
+
+Add a host bridge enable_device() hook the imx6 driver can use to
+configure the Requester ID to StreamID mapping. The hardware table isn't
+big enough to map all possible Requester IDs, so this hook may fail if
+no table space is available. In that case, return failure from
+pci_enable_device().
+
+It might make more sense to make pci_set_master() decline to enable bus
+mastering and return failure, but it currently doesn't have a way to return
+failure.
+
+Link: https://lore.kernel.org/r/20250114-imx95_lut-v9-1-39f58dbed03a@nxp.com
+Tested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+[kwilczynski: commit log]
+Signed-off-by: Krzysztof Wilczyński <kwilczynski@kernel.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ drivers/pci/pci.c   | 36 +++++++++++++++++++++++++++++++++++-
+ include/linux/pci.h |  2 ++
+ 2 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 0b29ec6e8e5e2d..773ca3cbd32219 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2059,6 +2059,28 @@ int __weak pcibios_enable_device(struct pci_dev *dev, int bars)
+ 	return pci_enable_resources(dev, bars);
+ }
+ 
++static int pci_host_bridge_enable_device(struct pci_dev *dev)
++{
++	struct pci_host_bridge *host_bridge = pci_find_host_bridge(dev->bus);
++	int err;
++
++	if (host_bridge && host_bridge->enable_device) {
++		err = host_bridge->enable_device(host_bridge, dev);
++		if (err)
++			return err;
++	}
++
++	return 0;
++}
++
++static void pci_host_bridge_disable_device(struct pci_dev *dev)
++{
++	struct pci_host_bridge *host_bridge = pci_find_host_bridge(dev->bus);
++
++	if (host_bridge && host_bridge->disable_device)
++		host_bridge->disable_device(host_bridge, dev);
++}
++
+ static int do_pci_enable_device(struct pci_dev *dev, int bars)
+ {
+ 	int err;
+@@ -2074,9 +2096,13 @@ static int do_pci_enable_device(struct pci_dev *dev, int bars)
+ 	if (bridge)
+ 		pcie_aspm_powersave_config_link(bridge);
+ 
++	err = pci_host_bridge_enable_device(dev);
++	if (err)
++		return err;
++
+ 	err = pcibios_enable_device(dev, bars);
+ 	if (err < 0)
+-		return err;
++		goto err_enable;
+ 	pci_fixup_device(pci_fixup_enable, dev);
+ 
+ 	if (dev->msi_enabled || dev->msix_enabled)
+@@ -2091,6 +2117,12 @@ static int do_pci_enable_device(struct pci_dev *dev, int bars)
+ 	}
+ 
+ 	return 0;
++
++err_enable:
++	pci_host_bridge_disable_device(dev);
++
++	return err;
++
+ }
+ 
+ /**
+@@ -2274,6 +2306,8 @@ void pci_disable_device(struct pci_dev *dev)
+ 	if (atomic_dec_return(&dev->enable_cnt) != 0)
+ 		return;
+ 
++	pci_host_bridge_disable_device(dev);
++
+ 	do_pci_disable_device(dev);
+ 
+ 	dev->is_busmaster = 0;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index db9b47ce3eefdc..bcbef004dd5615 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -595,6 +595,8 @@ struct pci_host_bridge {
+ 	u8 (*swizzle_irq)(struct pci_dev *, u8 *); /* Platform IRQ swizzler */
+ 	int (*map_irq)(const struct pci_dev *, u8, u8);
+ 	void (*release_fn)(struct pci_host_bridge *);
++	int (*enable_device)(struct pci_host_bridge *bridge, struct pci_dev *dev);
++	void (*disable_device)(struct pci_host_bridge *bridge, struct pci_dev *dev);
+ 	void		*release_data;
+ 	unsigned int	ignore_reset_delay:1;	/* For entire hierarchy */
+ 	unsigned int	no_ext_tags:1;		/* No Extended Tags */

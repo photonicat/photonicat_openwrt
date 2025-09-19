@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcat2-display-mini
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=20
+PKG_RELEASE:=34
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/photonicat/photonicat2_mini_display
-PKG_SOURCE_DATE:=2025-08-23
-PKG_SOURCE_VERSION:=9fcaf2a1d51d968fd07bcd097e0f7b9671b601bf
+PKG_SOURCE_DATE:=2025-09-16
+PKG_SOURCE_VERSION:=2bdf957a7e07a6017d549265e5b294701aa444ae
 
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=LICENSE
@@ -38,7 +38,7 @@ define Package/pcat2-display-mini
   CATEGORY:=Utilities
   DEPENDS:=$(GO_ARCH_DEPENDS)
   PROVIDES:=pcat2-display-mini
-  URL:=https://github.com/photonicat/photonicat2_mini_display
+  URL:=https://git.g77k.com/yiling.cao/photonicat2_display_go.git
 endef
 
 define Package/pcat2-display-mini/description

@@ -1,0 +1,257 @@
+Reviewed-by: Maxime Ripard <mripard@kernel.org>
+Tested-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+---
+ drivers/gpu/drm/display/Kconfig                |  1 +
+ drivers/gpu/drm/display/drm_bridge_connector.c | 99 ++++++++++++++++++++++++--
+ include/drm/drm_bridge.h                       | 74 +++++++++++++++++++
+ 3 files changed, 170 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/display/Kconfig b/drivers/gpu/drm/display/Kconfig
+index 80c1953cac14a088d764acd45df03debfcb95e7c..2619fa2476eb149e1befc3135131ed5aaeb5bb4c 100644
+--- a/drivers/gpu/drm/display/Kconfig
++++ b/drivers/gpu/drm/display/Kconfig
+@@ -15,6 +15,7 @@ if DRM_DISPLAY_HELPER
+ 
+ config DRM_BRIDGE_CONNECTOR
+ 	bool
++	select DRM_DISPLAY_HDMI_AUDIO_HELPER
+ 	select DRM_DISPLAY_HDMI_STATE_HELPER
+ 	help
+ 	  DRM connector implementation terminating DRM bridge chains.
+diff --git a/drivers/gpu/drm/display/drm_bridge_connector.c b/drivers/gpu/drm/display/drm_bridge_connector.c
+index 512ced87ea18c74e182a558a686ddd83de891814..3f18495c30a4a7fcdaf93b161cf1d30020788772 100644
+--- a/drivers/gpu/drm/display/drm_bridge_connector.c
++++ b/drivers/gpu/drm/display/drm_bridge_connector.c
+@@ -18,6 +18,7 @@
+ #include <drm/drm_managed.h>
+ #include <drm/drm_modeset_helper_vtables.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/display/drm_hdmi_audio_helper.h>
+ #include <drm/display/drm_hdmi_state_helper.h>
+ 
+ /**
+@@ -374,6 +375,75 @@ static const struct drm_connector_hdmi_funcs drm_bridge_connector_hdmi_funcs = {
+ 	.write_infoframe = drm_bridge_connector_write_infoframe,
+ };
+ 
++static int drm_bridge_connector_audio_startup(struct drm_connector *connector)
++{
++	struct drm_bridge_connector *bridge_connector =
++		to_drm_bridge_connector(connector);
++	struct drm_bridge *bridge;
++
++	bridge = bridge_connector->bridge_hdmi;
++	if (!bridge)
++		return -EINVAL;
++
++	if (!bridge->funcs->hdmi_audio_startup)
++		return 0;
++
++	return bridge->funcs->hdmi_audio_startup(connector, bridge);
++}
++
++static int drm_bridge_connector_audio_prepare(struct drm_connector *connector,
++					      struct hdmi_codec_daifmt *fmt,
++					      struct hdmi_codec_params *hparms)
++{
++	struct drm_bridge_connector *bridge_connector =
++		to_drm_bridge_connector(connector);
++	struct drm_bridge *bridge;
++
++	bridge = bridge_connector->bridge_hdmi;
++	if (!bridge)
++		return -EINVAL;
++
++	return bridge->funcs->hdmi_audio_prepare(connector, bridge, fmt, hparms);
++}
++
++static void drm_bridge_connector_audio_shutdown(struct drm_connector *connector)
++{
++	struct drm_bridge_connector *bridge_connector =
++		to_drm_bridge_connector(connector);
++	struct drm_bridge *bridge;
++
++	bridge = bridge_connector->bridge_hdmi;
++	if (!bridge)
++		return;
++
++	bridge->funcs->hdmi_audio_shutdown(connector, bridge);
++}
++
++static int drm_bridge_connector_audio_mute_stream(struct drm_connector *connector,
++					    bool enable, int direction)
++{
++	struct drm_bridge_connector *bridge_connector =
++		to_drm_bridge_connector(connector);
++	struct drm_bridge *bridge;
++
++	bridge = bridge_connector->bridge_hdmi;
++	if (!bridge)
++		return -EINVAL;
++
++	if (bridge->funcs->hdmi_audio_mute_stream)
++		return bridge->funcs->hdmi_audio_mute_stream(connector, bridge,
++							     enable, direction);
++	else
++		return -ENOTSUPP;
++}
++
++static const struct drm_connector_hdmi_audio_funcs drm_bridge_connector_hdmi_audio_funcs = {
++	.startup = drm_bridge_connector_audio_startup,
++	.prepare = drm_bridge_connector_audio_prepare,
++	.shutdown = drm_bridge_connector_audio_shutdown,
++	.mute_stream = drm_bridge_connector_audio_mute_stream,
++};
++
+ /* -----------------------------------------------------------------------------
+  * Bridge Connector Initialisation
+  */
+@@ -473,7 +543,9 @@ struct drm_connector *drm_bridge_connector_init(struct drm_device *drm,
+ 	if (connector_type == DRM_MODE_CONNECTOR_Unknown)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	if (bridge_connector->bridge_hdmi)
++	if (bridge_connector->bridge_hdmi) {
++		bridge = bridge_connector->bridge_hdmi;
++
+ 		ret = drmm_connector_hdmi_init(drm, connector,
+ 					       bridge_connector->bridge_hdmi->vendor,
+ 					       bridge_connector->bridge_hdmi->product,
+@@ -482,12 +554,31 @@ struct drm_connector *drm_bridge_connector_init(struct drm_device *drm,
+ 					       connector_type, ddc,
+ 					       supported_formats,
+ 					       max_bpc);
+-	else
++		if (ret)
++			return ERR_PTR(ret);
++
++		if (bridge->hdmi_audio_max_i2s_playback_channels ||
++		    bridge->hdmi_audio_spdif_playback) {
++			if (!bridge->funcs->hdmi_audio_prepare ||
++			    !bridge->funcs->hdmi_audio_shutdown)
++				return ERR_PTR(-EINVAL);
++
++			ret = drm_connector_hdmi_audio_init(connector,
++							    bridge->hdmi_audio_dev,
++							    &drm_bridge_connector_hdmi_audio_funcs,
++							    bridge->hdmi_audio_max_i2s_playback_channels,
++							    bridge->hdmi_audio_spdif_playback,
++							    bridge->hdmi_audio_dai_port);
++			if (ret)
++				return ERR_PTR(ret);
++		}
++	} else {
+ 		ret = drmm_connector_init(drm, connector,
+ 					  &drm_bridge_connector_funcs,
+ 					  connector_type, ddc);
+-	if (ret)
+-		return ERR_PTR(ret);
++		if (ret)
++			return ERR_PTR(ret);
++	}
+ 
+ 	drm_connector_helper_add(connector, &drm_bridge_connector_helper_funcs);
+ 
+diff --git a/include/drm/drm_bridge.h b/include/drm/drm_bridge.h
+index e8d735b7f6a480468c88287e2517b387ceec0f22..4b84faf14e368310dd20aa964e8178ec80aa6fa7 100644
+--- a/include/drm/drm_bridge.h
++++ b/include/drm/drm_bridge.h
+@@ -41,6 +41,8 @@ struct drm_display_info;
+ struct drm_minor;
+ struct drm_panel;
+ struct edid;
++struct hdmi_codec_daifmt;
++struct hdmi_codec_params;
+ struct i2c_adapter;
+ 
+ /**
+@@ -676,6 +678,57 @@ struct drm_bridge_funcs {
+ 				    enum hdmi_infoframe_type type,
+ 				    const u8 *buffer, size_t len);
+ 
++	/**
++	 * @hdmi_audio_startup:
++	 *
++	 * Called when ASoC starts an audio stream setup. The
++	 * @hdmi_audio_startup() is optional.
++	 *
++	 * Returns:
++	 * 0 on success, a negative error code otherwise
++	 */
++	int (*hdmi_audio_startup)(struct drm_connector *connector,
++				  struct drm_bridge *bridge);
++
++	/**
++	 * @prepare:
++	 * Configures HDMI-encoder for audio stream. Can be called multiple
++	 * times for each setup. Mandatory if HDMI audio is enabled in the
++	 * bridge's configuration.
++	 *
++	 * Returns:
++	 * 0 on success, a negative error code otherwise
++	 */
++	int (*hdmi_audio_prepare)(struct drm_connector *connector,
++				  struct drm_bridge *bridge,
++				  struct hdmi_codec_daifmt *fmt,
++				  struct hdmi_codec_params *hparms);
++
++	/**
++	 * @hdmi_audio_shutdown:
++	 *
++	 * Shut down the audio stream. Mandatory if HDMI audio is enabled in
++	 * the bridge's configuration.
++	 *
++	 * Returns:
++	 * 0 on success, a negative error code otherwise
++	 */
++	void (*hdmi_audio_shutdown)(struct drm_connector *connector,
++				    struct drm_bridge *bridge);
++
++	/**
++	 * @hdmi_audio_mute_stream:
++	 *
++	 * Mute/unmute HDMI audio stream. The @hdmi_audio_mute_stream callback
++	 * is optional.
++	 *
++	 * Returns:
++	 * 0 on success, a negative error code otherwise
++	 */
++	int (*hdmi_audio_mute_stream)(struct drm_connector *connector,
++				      struct drm_bridge *bridge,
++				      bool enable, int direction);
++
+ 	/**
+ 	 * @debugfs_init:
+ 	 *
+@@ -859,6 +912,27 @@ struct drm_bridge {
+ 	 * @DRM_BRIDGE_OP_HDMI is set.
+ 	 */
+ 	unsigned int max_bpc;
++
++	/**
++	 * @hdmi_audio_dev: device to be used as a parent for the HDMI Codec
++	 */
++	struct device *hdmi_audio_dev;
++
++	/**
++	 * @hdmi_audio_max_i2s_playback_channels: maximum number of playback
++	 * I2S channels for the HDMI codec
++	 */
++	int hdmi_audio_max_i2s_playback_channels;
++
++	/**
++	 * @hdmi_audio_spdif_playback: set if HDMI codec has S/PDIF playback port
++	 */
++	unsigned int hdmi_audio_spdif_playback : 1;
++
++	/**
++	 * @hdmi_audio_dai_port: sound DAI port, -1 if it is not enabled
++	 */
++	int hdmi_audio_dai_port;
+ };
+ 
+ static inline struct drm_bridge *
+
+-- 
+2.39.5

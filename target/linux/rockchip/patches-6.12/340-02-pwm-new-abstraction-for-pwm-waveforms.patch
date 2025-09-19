@@ -59,9 +59,11 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  include/linux/pwm.h |  36 +++++++
  2 files changed, 249 insertions(+), 21 deletions(-)
 
+diff --git a/drivers/pwm/core.c b/drivers/pwm/core.c
+index 5a095eb46b544f..bbe7bfdb154927 100644
 --- a/drivers/pwm/core.c
 +++ b/drivers/pwm/core.c
-@@ -49,6 +49,102 @@ static void pwmchip_unlock(struct pwm_ch
+@@ -49,6 +49,102 @@ static void pwmchip_unlock(struct pwm_chip *chip)
  
  DEFINE_GUARD(pwmchip, struct pwm_chip *, pwmchip_lock(_T), pwmchip_unlock(_T))
  
@@ -164,7 +166,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  static void pwm_apply_debug(struct pwm_device *pwm,
  			    const struct pwm_state *state)
  {
-@@ -186,6 +282,7 @@ static bool pwm_state_valid(const struct
+@@ -182,6 +278,7 @@ static bool pwm_state_valid(const struct pwm_state *state)
  static int __pwm_apply(struct pwm_device *pwm, const struct pwm_state *state)
  {
  	struct pwm_chip *chip;
@@ -172,7 +174,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  	int err;
  
  	if (!pwm || !state)
-@@ -209,6 +306,7 @@ static int __pwm_apply(struct pwm_device
+@@ -205,6 +302,7 @@ static int __pwm_apply(struct pwm_device *pwm, const struct pwm_state *state)
  	}
  
  	chip = pwm->chip;
@@ -180,7 +182,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  
  	if (state->period == pwm->state.period &&
  	    state->duty_cycle == pwm->state.duty_cycle &&
-@@ -217,18 +315,69 @@ static int __pwm_apply(struct pwm_device
+@@ -213,18 +311,69 @@ static int __pwm_apply(struct pwm_device *pwm, const struct pwm_state *state)
  	    state->usage_power == pwm->state.usage_power)
  		return 0;
  
@@ -260,7 +262,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  
  	return 0;
  }
-@@ -296,6 +445,41 @@ int pwm_apply_atomic(struct pwm_device *
+@@ -292,6 +441,41 @@ int pwm_apply_atomic(struct pwm_device *pwm, const struct pwm_state *state)
  }
  EXPORT_SYMBOL_GPL(pwm_apply_atomic);
  
@@ -302,7 +304,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  /**
   * pwm_adjust_config() - adjust the current PWM config to the PWM arguments
   * @pwm: PWM device
-@@ -434,7 +618,7 @@ err_get_device:
+@@ -435,7 +619,7 @@ static int pwm_device_request(struct pwm_device *pwm, const char *label)
  		}
  	}
  
@@ -311,7 +313,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  		/*
  		 * Zero-initialize state because most drivers are unaware of
  		 * .usage_power. The other members of state are supposed to be
-@@ -444,11 +628,7 @@ err_get_device:
+@@ -445,11 +629,7 @@ static int pwm_device_request(struct pwm_device *pwm, const char *label)
  		 */
  		struct pwm_state state = { 0, };
  
@@ -324,7 +326,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  		if (!err)
  			pwm->state = state;
  
-@@ -1135,12 +1315,24 @@ static bool pwm_ops_check(const struct p
+@@ -1136,12 +1316,24 @@ static bool pwm_ops_check(const struct pwm_chip *chip)
  {
  	const struct pwm_ops *ops = chip->ops;
  
@@ -335,7 +337,10 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
 +		    !ops->round_waveform_fromhw ||
 +		    !ops->write_waveform)
 +			return false;
-+
+ 
+-	if (IS_ENABLED(CONFIG_PWM_DEBUG) && !ops->get_state)
+-		dev_warn(pwmchip_parent(chip),
+-			 "Please implement the .get_state() callback\n");
 +		if (WFHWSIZE < ops->sizeof_wfhw) {
 +			dev_warn(pwmchip_parent(chip), "WFHWSIZE < %zu\n", ops->sizeof_wfhw);
 +			return false;
@@ -343,10 +348,7 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
 +	} else {
 +		if (!ops->apply)
 +			return false;
- 
--	if (IS_ENABLED(CONFIG_PWM_DEBUG) && !ops->get_state)
--		dev_warn(pwmchip_parent(chip),
--			 "Please implement the .get_state() callback\n");
++
 +		if (IS_ENABLED(CONFIG_PWM_DEBUG) && !ops->get_state)
 +			dev_warn(pwmchip_parent(chip),
 +				 "Please implement the .get_state() callback\n");
@@ -354,6 +356,8 @@ Signed-off-by: Uwe Kleine-König <ukleinek@kernel.org>
  
  	return true;
  }
+diff --git a/include/linux/pwm.h b/include/linux/pwm.h
+index 3ea73e075abe87..d8cfe1c9b19d83 100644
 --- a/include/linux/pwm.h
 +++ b/include/linux/pwm.h
 @@ -49,6 +49,31 @@ enum {

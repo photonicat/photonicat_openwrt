@@ -1,25 +1,37 @@
-# 欢迎来到 Lean 的 LEDE 源码仓库
+# Photonicat 2 - 新一代便携智能路由器
 
-为国产龙芯 LOONGSON SoC loongarch64 / 飞腾 Phytium 腾锐 D2000 系列架构添加支持
+<div align="center">
+<img src="https://photonicat.com/images/thumb/d/d7/Pcat2-wiki.webp/1200px-Pcat2-wiki.webp.png?20250822110422" alt="Photonicat 2" width="350" height="350"/>
+</div>
 
-I18N: [English](README_EN.md) | [简体中文](README.md) | [日本語](README_JA.md)
+Photonicat 2，在原有基础上进行了多方面的增强与升级：
 
-## 官方讨论群
+🖥️ **CPU 升级**：由原来的 4 核升级为 8 核，采用先进的 8nm RK3678 SoC，计算性能和能效全面提升。
 
-如有技术问题需要讨论或者交流，欢迎加入以下群：
+🧠 **内存升级**：由 DDR4 升级为 LPDDR5 内存，支持 On-Die ECC，自修复能力更强，数据稳定性更高。
 
-1. QQ 讨论群：Op 固件技术研究群，号码 891659613，加群链接：[点击加入](https://qm.qq.com/q/IMa6Yf2SgC "Op固件技术研究群")
-2. TG 讨论群：OP 编译官方大群，加群链接：[点击加入](https://t.me/JhKgAA6Hx1 "OP 编译官方大群")
+📡 **天线增强**：内置7根增强型天线，支持4根可扩展外置天线，信号更强。
 
-## 软路由 ArmSoM Sige 系列介绍
+🔋 **电池升级**：内置 4 × 18650 大容量电池，续航能力显著提升。
 
-ArmSoM-Sige 系列：软路由、单板计算机、小型服务器与智能家居的全能之选。
+🔌 **电源系统升级**：支持 无电池运行（直流供电模式），并新增 双向快充 30W 功能，既可快速自充，也可作为移动电源反向输出。
 
-[商品介绍页面 - ArmSom 品牌店](https://shop518100695.taobao.com/)
+💾 **存储扩展**：除 eMMC/SD 外，新增对 NVMe 固态硬盘的支持，提供高速存储能力。
 
-购买链接：
+📺 **新增交互**：内置屏幕，可实时显示设备状态和网络信息。
 
-[![sige1-zh](doc/sige-zh.jpg)](https://item.taobao.com/item.htm?id=721197662185)
+📊 **传感器扩展**：集成库仑计（Columb Meter），支持精确电流/电量测量；G-sensor 提供移动检测与姿态感应。
+
+🛠️ **软件兼容**：保持 OpenWRT 开源支持，灵活安装丰富插件，同时可刷入 Debian、Ubuntu、Android 固件
+
+---
+
+## 支持设备
+
+本源码支持 Photonicat v1 和 v2 设备，专为便携智能路由器优化。
+
+1. https://photonicat.com/
+2. https://photonicat.com/wiki
 
 ## 注意
 
@@ -159,20 +171,3 @@ PS > git clone https://github.com/coolsnowwolf/lede <your_local_lede_path>
    ```
 
 5. 重新加载一下 shell 启动文件 `source ~/.bashrc`，然后输入 `bash` 进入 bash shell，就可以和 Linux 一样正常编译了
-
-## 特别提示
-
-1. 源代码中绝不含任何后门和可以监控或者劫持你的 HTTPS 的闭源软件， SSL 安全是互联网最后的壁垒，安全干净才是固件应该做到的。
-
-2. 想学习 OpenWrt 开发，但是摸不着门道？自学没毅力？基础太差？怕太难学不会？跟着佐大学 OpenWrt 开发入门培训班助你能学有所成
-报名地址：[点击报名](http://forgotfun.org/2018/04/openwrt-training-2018.html "报名")
-
-3. QCA IPQ60xx 开源仓库地址：<https://github.com/coolsnowwolf/openwrt-gl-ax1800>
-
-4. 存档版本仓库地址：<https://github.com/coolsnowwolf/openwrt>
-
-## 捐贈
-
-如果你觉得此项目对你有帮助，可以捐助我们，以鼓励项目能持续发展，更加完善
-
- ![star](doc/star.png)

@@ -1,6 +1,6 @@
 part uuid mmc ${devnum}:2 uuid
 
-setenv bootargs "console=ttyS0,1500000 earlycon=uart8250,mmio32,0x2ad40000 root=PARTUUID=${uuid} rw rootwait"
+setenv bootargs "console=ttyS0,1500000 earlycon=uart8250,mmio32,0x2ad40000 root=PARTUUID=${uuid} rw rootwait nvme_core.default_ps_max_latency_us=0"
 
 load mmc ${devnum}:1 ${fdt_addr_r} rockchip.dtb
 load mmc ${devnum}:1 ${kernel_addr_r} kernel.img

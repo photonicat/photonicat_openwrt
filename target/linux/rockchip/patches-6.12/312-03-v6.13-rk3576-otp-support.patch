@@ -9,6 +9,8 @@ Signed-off-by: Heiko Stuebner <heiko@sntech.de>
  .../bindings/nvmem/rockchip,otp.yaml           | 18 ++++++++++++++++++
  1 file changed, 18 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/nvmem/rockchip,otp.yaml b/Documentation/devicetree/bindings/nvmem/rockchip,otp.yaml
+index a44d44b32809..dae7543a0179 100644
 --- a/Documentation/devicetree/bindings/nvmem/rockchip,otp.yaml
 +++ b/Documentation/devicetree/bindings/nvmem/rockchip,otp.yaml
 @@ -14,6 +14,7 @@ properties:
@@ -19,10 +21,12 @@ Signed-off-by: Heiko Stuebner <heiko@sntech.de>
        - rockchip,rk3588-otp
  
    reg:
-@@ -70,6 +71,23 @@ allOf:
+@@ -68,6 +69,23 @@ allOf:
+           items:
+             - const: phy
  
-   - if:
-       properties:
++  - if:
++      properties:
 +        compatible:
 +          contains:
 +            enum:
@@ -38,8 +42,8 @@ Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 +            - const: otp
 +            - const: apb
 +
-+  - if:
-+      properties:
+   - if:
+       properties:
          compatible:
-           contains:
-             enum:
+-- 
+2.45.2
