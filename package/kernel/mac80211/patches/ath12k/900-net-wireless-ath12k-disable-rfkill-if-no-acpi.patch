@@ -1,7 +1,7 @@
 --- a/drivers/net/wireless/ath/ath12k/core.c
 +++ b/drivers/net/wireless/ath/ath12k/core.c
-@@ -30,6 +30,10 @@
- 	if (!(ab->target_caps.sys_cap_info & WMI_SYS_CAP_INFO_RFKILL))
+@@ -77,6 +77,10 @@
+ 	if (ath12k_acpi_get_disable_rfkill(ab))
  		return 0;
  
 +#ifndef CONFIG_ACPI
