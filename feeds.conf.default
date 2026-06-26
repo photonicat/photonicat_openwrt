@@ -1,5 +1,5 @@
 src-git packages https://github.com/photonicat/rockchip_rk3568_openwrt_packages.git;master
 src-git luci https://github.com/photonicat/rockchip_rk3568_openwrt_luci.git;openwrt-25.12
-src-git routing https://github.com/photonicat/rockchip_rk3568_openwrt_routing.git;master
-src-git telephony https://github.com/photonicat/rockchip_rk3568_openwrt_telephony.git;master
-src-git video https://github.com/photonicat/rockchip_rk3568_openwrt_video.git;master
+src-git routing https://github.com/photonicat/rockchip_rk3568_openwrt_routing.git;openwrt-25.12
+src-git telephony https://github.com/photonicat/rockchip_rk3568_openwrt_telephony.git;openwrt-25.12
+src-git video https://github.com/photonicat/rockchip_rk3568_openwrt_video.git;openwrt-25.12
